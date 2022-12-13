@@ -1,3 +1,0 @@
-var name = "Minh Duong";
-
-print(name);
