@@ -9,7 +9,7 @@ parser_T* init_parser(lexer_T* lexer) {
 
 	parser->lexer = lexer;
 	parser->cur_token = lexer_get_next_token(lexer);
-	
+
 	return parser;
 };
 
@@ -35,12 +35,14 @@ AST_T* parser_parse(parser_T* parser) {
 
 // STATEMENTS
 AST_T* parser_parse_statements(parser_T* parser) {
+
 	AST_T* compound = init_ast(AST_COMPOUND);
 
 	compound->compound_value = calloc(1, sizeof(struct AST_STRUCT*));
 
 	AST_T* ast_statement = parser_parse_statement(parser);
 	compound->compound_value[0] = ast_statement;
+
 
 	while (parser->cur_token->type == TOKEN_SEMI) {
 		// Eat (skip) the semicolon
@@ -52,8 +54,9 @@ AST_T* parser_parse_statements(parser_T* parser) {
 			compound->compound_value,
 			compound->compound_size * sizeof(struct AST_STRUCT)
 		);
-		compound->compound_value[compound->compound_size] = ast_statement;
+		compound->compound_value[compound->compound_size - 1] = ast_statement;
 	}
+
 
 	return compound;
 }
@@ -64,12 +67,14 @@ AST_T* parser_parse_statement(parser_T* parser) {
 	}
 }
 
-// MATHS
-// Mathematical expressions - whole result
+// Expression
 AST_T* parser_parse_expression(parser_T* parser) {
-
+	switch (parser->cur_token->type) {
+		case TOKEN_STRING: return parser_parse_string(parser);
+	}
 }
 
+// MATHS
 // Mathematical expression - Multiplication
 AST_T* parser_parse_factor(parser_T* parser) {
 
@@ -134,7 +139,15 @@ AST_T* parser_parse_var_or_func(parser_T* parser) {
 	}
 }
 
-AST_T* parser_parse_string(parser_T* parser) {
 
+// String
+AST_T* parser_parse_string(parser_T* parser) {
+	AST_T* ast = init_ast(AST_STRING);
+	
+	ast->string_val = parser->cur_token->value;
+	parser_eat(parser, TOKEN_STRING);
+
+
+	return ast;
 }
 
