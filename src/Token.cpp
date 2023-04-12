@@ -3,7 +3,7 @@
 
 #include "./include/Token.h"
 
-Token::Token(TokenType type, int position, std::string text)
+Token::Token(TokenType type, int position, std::string text, void* value)
   : type(type), position(position), text(text)
 {}
 
@@ -19,4 +19,4 @@ std::ostream& operator<<(std::ostream& os, const Token& token) {
          ", position: " << token.position << 
          ", value: " << token.text << "}" << 
          std::endl;
-};
+}

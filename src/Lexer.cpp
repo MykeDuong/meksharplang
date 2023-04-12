@@ -11,37 +11,63 @@ Lexer::Lexer(std::string contents)
 {}
 
 Token* Lexer::nextToken() {
+  if (position == text.length()) {
+    return new Token(TOKEN_EOF, position, "\0", nullptr);
+  }
+
   // Number check
   if (this->getCurrent() >= '0' && this->getCurrent() <= '9') {
     int start = position;
     while (this->getCurrent() >= '0' && this->getCurrent() <= '9') { next(); }
     int length = position - start;
     std::string number = text.substr(start, length);
-    return new Token(TOKEN_NUMBER, start, number);
+    int value = std::stoi(number);
+    return new Token(TOKEN_NUMBER, start, number, &value);
   }
 
   if (isalnum(this->getCurrent())) {
     int start = position;
     while (isalnum(this->getCurrent())) { next(); }
     int length = position - start;
-    std::string number = text.substr(start, length);
-    return new Token(TOKEN_TEXT, start, number);
+    std::string value = text.substr(start, length);
+    return new Token(TOKEN_TEXT, start, value, nullptr);
   }
 
   if (std::isspace(this->getCurrent())) {
-    Token* token = new Token(TOKEN_WHITESPACE, position, " ");
-    next();
-    return token;
+    int start = position;
+    while (isspace(this->getCurrent())) { next(); }
+    int length = position - start;
+    std::string value = " ";
+    return new Token(TOKEN_WHITESPACE, start, value, nullptr);
   }
 
-  if (operators.find(this->getCurrent()) != operators.end()) {
-    Token* token = new Token(TOKEN_OPERATOR, position, text.substr(position, 1));
-    next();
-    return token;
+  Token* token;
+  switch (this->getCurrent()) {
+    case '+':
+      token = new Token(TOKEN_PLUS, position, "+", nullptr);
+      break;
+    case '-':
+      token = new Token(TOKEN_MINUS, position, "-", nullptr);
+      break;
+    case '*':
+      token = new Token(TOKEN_STAR, position, "*", nullptr);
+      break;
+    case '/':
+      token = new Token(TOKEN_SLASH, position, "/", nullptr);
+      break;
+    case '(':
+      token = new Token(TOKEN_LEFT_PARENTHESIS, position, "(", nullptr);
+      break;
+    case ')':
+      token = new Token(TOKEN_RIGHT_PARENTHESIS, position, ")", nullptr);
+      break;
+    default:
+      token = new Token(TOKEN_BAD, position, text.substr(position - 1, 1), nullptr);
+      break;
   }
 
-  std::cout << "Error: unrecognizable character " << text[position] <<  std::endl;
-  exit(1);
+  position++;
+  return token;
 }
 
 char Lexer::getCurrent() {
