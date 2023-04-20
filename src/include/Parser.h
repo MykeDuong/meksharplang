@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "Token.h"
+#include "ASTExpressionNode.h"
 
 #ifndef PARSER_H
 #define PARSER_H
@@ -13,10 +14,12 @@ class Parser {
 
   public:
     Parser(std::string text);
+    ASTExpressionNode* parse();
 
   private:
     Token* peek(int offset);
     Token* current();
+    Token* nextToken();
 };
 
 

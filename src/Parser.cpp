@@ -30,4 +30,13 @@ Token* Parser::peek(int offset) {
 
 Token* Parser::current() {
   return this->peek(0);
-} 
+}
+
+ASTExpressionNode* Parser::parse() {
+}
+
+Token* Parser::nextToken() {
+  Token* current = this->current();
+  this->position++;
+  return current;
+}
