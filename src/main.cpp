@@ -3,7 +3,7 @@
 #include <string>
 #include <sstream>
 
-#include "./include/lexer.h"
+#include "./include/Parser.h"
 
 int main(int argc, char* argv[]) {
   if ( argc < 2) {
@@ -16,14 +16,8 @@ int main(int argc, char* argv[]) {
   std::stringstream buffer;
   buffer << t.rdbuf();
 
-  Lexer* lexer = new Lexer(buffer.str());
+  Parser* parser = new Parser(buffer.str());
 
-  Token* token = lexer->nextToken();
-
-  do {
-    std::cout << *token;
-    token = lexer->nextToken();
-  } while (token->getType() != TOKEN_EOF);
 
   return 0;
 }

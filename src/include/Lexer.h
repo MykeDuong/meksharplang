@@ -1,9 +1,9 @@
+#ifndef LEXER_H
+#define LEXER_H
+
 #include <string>
 
 #include "Token.h"
-
-#ifndef LEXER_H
-#define LEXER_H
 
 class Lexer {
   private:

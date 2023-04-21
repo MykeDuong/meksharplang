@@ -7,11 +7,11 @@ Token::Token(TokenType type, int position, std::string text, void* value)
   : type(type), position(position), text(text)
 {}
 
-TokenType Token::getType() { return type; }
+TokenType Token::getType() { return this->type; }
 
-int Token::getPosition() { return position; }
+int Token::getPosition() { return this->position; }
 
-std::string Token::getText() { return text; }
+std::string Token::getText() { return this->text; }
 
 std::ostream& operator<<(std::ostream& os, const Token& token) {
   return os << 

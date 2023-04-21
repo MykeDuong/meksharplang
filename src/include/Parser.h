@@ -1,11 +1,11 @@
+#ifndef PARSER_H
+#define PARSER_H
+
 #include <string>
 #include <vector>
 
 #include "Token.h"
-#include "ASTExpressionNode.h"
-
-#ifndef PARSER_H
-#define PARSER_H
+#include "ASTNumberExpressionNode.h"
 
 class Parser {
   private:
@@ -20,7 +20,8 @@ class Parser {
     Token* peek(int offset);
     Token* current();
     Token* nextToken();
+    Token* match(TokenType type);
+    ASTExpressionNode* parsePrimaryExpression();
 };
-
 
 #endif 
