@@ -13,7 +13,8 @@ class ASTNumberExpressionNode final: public ASTExpressionNode {
 
   public:
     Token* getToken();
-    TokenType getType();
+    SyntaxType getType();
+    std::vector<ASTNode*> getChildren();
 };
 
 #endif

@@ -7,12 +7,13 @@
 class ASTBinaryExpressionNode final: public ASTExpressionNode {
   private:
     ASTExpressionNode* left;
-    ASTExpressionNode* right;
     Token* operatorToken;
+    ASTExpressionNode* right;
 
   public:
-    ASTBinaryExpressionNode(Token* operatorToken, ASTExpressionNode* left, ASTExpressionNode* right);
-    TokenType getType();
+    ASTBinaryExpressionNode(ASTExpressionNode* left, Token* operatorToken, ASTExpressionNode* right);
+    SyntaxType getType();
+    std::vector<ASTNode*> getChildren();
     Token* getOperatorToken();
     ASTExpressionNode* getLeft();
     ASTExpressionNode* getRight();

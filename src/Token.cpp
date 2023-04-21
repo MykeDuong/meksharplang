@@ -3,15 +3,19 @@
 
 #include "./include/Token.h"
 
-Token::Token(TokenType type, int position, std::string text, void* value)
-  : type(type), position(position), text(text)
+Token::Token(SyntaxType type, int position, std::string text, void* value)
+  : type(type), position(position), text(text), value(value)
 {}
 
-TokenType Token::getType() { return this->type; }
+std::vector<ASTNode*> Token::getChildren() { return {}; }
+
+SyntaxType Token::getType() { return this->type; }
 
 int Token::getPosition() { return this->position; }
 
 std::string Token::getText() { return this->text; }
+
+void* Token::getValue() { return this->value; }
 
 std::ostream& operator<<(std::ostream& os, const Token& token) {
   return os << 

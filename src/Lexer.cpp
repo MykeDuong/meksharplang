@@ -11,8 +11,8 @@ Lexer::Lexer(std::string contents)
 {}
 
 Token* Lexer::nextToken() {
-  if (position == text.length()) {
-    return new Token(TOKEN_EOF, position, "\0", nullptr);
+  if (this->position >= this->text.length()) {
+    return new Token(TOKEN_EOF, this->position, "\0", nullptr);
   }
 
   // Number check
@@ -21,8 +21,9 @@ Token* Lexer::nextToken() {
     while (this->getCurrent() >= '0' && this->getCurrent() <= '9') { next(); }
     int length = position - start;
     std::string number = text.substr(start, length);
-    int value = std::stoi(number);
-    return new Token(TOKEN_NUMBER, start, number, &value);
+    int* value = new int;
+    *value = std::stoi(number);
+    return new Token(TOKEN_NUMBER, start, number, value);
   }
 
   if (isalnum(this->getCurrent())) {

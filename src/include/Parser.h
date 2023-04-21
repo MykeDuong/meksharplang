@@ -20,7 +20,7 @@ class Parser {
     Token* peek(int offset);
     Token* current();
     Token* nextToken();
-    Token* match(TokenType type);
+    Token* match(SyntaxType type);
     ASTExpressionNode* parsePrimaryExpression();
 };
 

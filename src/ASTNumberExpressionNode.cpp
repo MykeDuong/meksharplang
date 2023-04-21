@@ -4,6 +4,8 @@ ASTNumberExpressionNode::ASTNumberExpressionNode(Token* token)
   : token(token)
 {}
 
-TokenType ASTNumberExpressionNode::getType() { return TOKEN_NUMBER; }
+SyntaxType ASTNumberExpressionNode::getType() { return EXPRESSION_NUMBER; }
+
+std::vector<ASTNode*> ASTNumberExpressionNode::getChildren() { return { this->getToken() }; }
 
 Token* ASTNumberExpressionNode::getToken() { return this->token; }

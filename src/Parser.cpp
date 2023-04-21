@@ -2,9 +2,11 @@
 
 #include "./include/Parser.h"
 #include "./include/Lexer.h"
+#include "./include/ASTBinaryExpressionNode.h"
 
 Parser::Parser(std::string text) {
   Lexer* lexer = new Lexer(text);
+  this->tokens = {};
 
   Token* token;
 
@@ -12,15 +14,15 @@ Parser::Parser(std::string text) {
     token = lexer->nextToken();
 
     if (token->getType() == TOKEN_WHITESPACE || token->getType() == TOKEN_BAD) {
-      delete(token); 
     } else {
       this->tokens.push_back(token);
     }
   } while (token->getType() != TOKEN_EOF);
+  delete(lexer);
 }
 
 Token* Parser::peek(int offset) {
-  int index = position + offset;
+  int index = this->position + offset;
   if (index >= this->tokens.size()) {
     return this->tokens[tokens.size() - 1];
   }
@@ -39,8 +41,9 @@ ASTExpressionNode* Parser::parse() {
     Token* operatorToken = nextToken();
     ASTExpressionNode* right = this->parsePrimaryExpression();
     left = new ASTBinaryExpressionNode(left, operatorToken, right);
-
   }
+
+  return left;
 }
 
 Token* Parser::nextToken() {
@@ -49,7 +52,7 @@ Token* Parser::nextToken() {
   return current;
 }
 
-Token* Parser::match(TokenType type) {
+Token* Parser::match(SyntaxType type) {
   if (this->current()->getType() == type) {
     return this->nextToken();
   }

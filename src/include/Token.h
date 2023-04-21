@@ -5,20 +5,23 @@
 #include <set>
 #include <iostream>
 
-#include "./TokenType.h"
+#include "./SyntaxType.h"
+#include "ASTNode.h"
 
-class Token {
+class Token: public ASTNode {
   private:
-    TokenType type;
+    SyntaxType type;
     int position = position;
     std::string text;
     void* value;
 
   public:
-    Token(TokenType type, int position, std::string text, void* value);
-    TokenType getType();
+    std::vector<ASTNode*> getChildren();
+    Token(SyntaxType type, int position, std::string text, void* value);
+    SyntaxType getType();
     int getPosition();
     std::string getText();
+    void* getValue();
     friend std::ostream& operator<<(std::ostream& os, const Token& token);
 };
 

@@ -1,13 +1,16 @@
 #include "./include/ASTBinaryExpressionNode.h"
+#include "include/SyntaxType.h"
 
 ASTBinaryExpressionNode::ASTBinaryExpressionNode (
-    Token* operatorToken,
     ASTExpressionNode* left, 
+    Token* operatorToken,
     ASTExpressionNode* right
 ) : operatorToken(operatorToken), left(left), right(right) { }
 
-TokenType ASTBinaryExpressionNode::getType() { return TOKEN_BINARY_OPERATOR; }
-    
+SyntaxType ASTBinaryExpressionNode::getType() { return EXPRESSION_BINARY_OPERATOR; }
+
+std::vector<ASTNode*> ASTBinaryExpressionNode::getChildren() { return { this->left, this->operatorToken, this->right };}
+
 Token* ASTBinaryExpressionNode::getOperatorToken() { return this->operatorToken; }
 
 ASTExpressionNode* ASTBinaryExpressionNode::getLeft() { return this->left; }
