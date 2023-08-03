@@ -9,6 +9,9 @@ $(exec): $(objects)
 %.o: %.cpp include/%.h
 	g++ -c $(flags) $< -o $@
 
+test:
+	./$(exec) ./samples/test.meks
+
 install:
 	make
 	cp ./mks.out /usr/local/bin/mks
