@@ -17,6 +17,7 @@ class AstPrinter final: public Expr::Visitor {
     void visit(const Expr::Grouping* expr);
     void visit(const Expr::Literal* expr);
     void visit(const Expr::Unary* expr);
+    void visit(const Expr::Variable* expr); 
     std::string print( Expr::Expr* expr);
   
   private:

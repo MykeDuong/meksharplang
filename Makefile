@@ -20,3 +20,6 @@ clean:
 	-rm *.out
 	-rm *.o
 	-rm src/*.o
+
+ast:
+	python3 ./tool/generate_ast.py ./src

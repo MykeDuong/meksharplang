@@ -4,6 +4,7 @@
 #include "./Expr.h"
 #include "./Token.h"
 #include "./LiteralValue.h"
+#include <vector>
 
 namespace Expr {
   class Expr;

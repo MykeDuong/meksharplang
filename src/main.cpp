@@ -5,6 +5,7 @@
 #include "include/Parser.h"
 #include "include/Scanner.h"
 #include "include/Binary.h"
+#include "include/Stmt.h"
 #include "include/Token.h"
 #include "include/Unary.h"
 #include "include/Grouping.h"
@@ -49,7 +50,7 @@ void runFile(std::string const& filename) {
   ifs.read(bytes.data(), fileSize);
 
   std::string source(bytes.data(), fileSize);
-  run(source);
+  run(source, false);
   if (ErrorHandler::hadError()) exit(65);
   if (ErrorHandler::hadRuntimeError()) exit(70);
 }
@@ -60,13 +61,13 @@ void runPrompt() {
     std::string line;
     std::getline(std::cin, line);
     if (line.empty()) break;
-    run(line);
+    run(line, true);
     ErrorHandler::resetErrorCounter();
     ErrorHandler::resetRuntimeErrorCounter();
   }
 }
 
-void run(std::string const& source) {
+void run(std::string const& source, bool isRepl) {
   Scanner* scanner = new Scanner(source);
   std::vector<Token*> tokens = scanner->scanTokens();
 
@@ -78,12 +79,12 @@ void run(std::string const& source) {
   */ 
 
   Parser* parser = new Parser(tokens);
-  Expr::Expr* expr = parser->parse();
+  std::vector<Stmt::Stmt*> stmt = parser->parse();
 
   if (ErrorHandler::hadError()) return;
 
   //std::cout << ((new AstPrinter())->print(expr)) << std::endl;
 
-  interpreter->interpret(expr);
+  interpreter->interpret(stmt, isRepl);
 }
 

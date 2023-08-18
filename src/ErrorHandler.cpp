@@ -2,6 +2,7 @@
 #include "include/Token.h"
 
 #include <iostream>
+#include <string>
 
 bool ErrorHandler::errorHappened = false;
 bool ErrorHandler::runtimeErrorHappened = false;
@@ -23,8 +24,8 @@ void ErrorHandler::report(int line, std::string const& where, std::string const&
   ErrorHandler::errorHappened = true;
 }
 
-void ErrorHandler::runtimeError(RuntimeError* error) {
-  std::cout << error->what() << "\n[line " << error->token->line << "]" << std::endl;
+void ErrorHandler::runtimeError(RuntimeError& error) {
+  std::cout << error.what() << "\n[line " << (error.token == nullptr ? "?" : std::to_string(error.token->line)) << "]" << std::endl;
   runtimeErrorHappened = true;   
 }
 

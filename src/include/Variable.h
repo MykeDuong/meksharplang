@@ -1,5 +1,5 @@
-#ifndef LITERAL_H
-#define LITERAL_H
+#ifndef VARIABLE_H
+#define VARIABLE_H
 
 #include "./Expr.h"
 #include "./Token.h"
@@ -8,11 +8,11 @@
 
 namespace Expr {
   class Expr;
-  class Literal: public Expr {
+  class Variable: public Expr {
     public:
-      const LiteralValue* value;
+      const Token* name;
 
-      Literal(const LiteralValue* value);
+      Variable(const Token* name);
       void const accept(Visitor* visitor) const;
   };
 };

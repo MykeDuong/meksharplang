@@ -55,6 +55,14 @@ void AstPrinter::visit(const Expr::Unary* expr) {
   parenthesize(expr->op->lexeme, VE{expr->right});
 }
 
+void AstPrinter::visit(const Expr::Variable* expr) {
+  if (expr == nullptr) {
+    result += "null";
+    return;
+  }
+  parenthesize(expr->name->lexeme, VE{nullptr});
+}
+
 void const AstPrinter::parenthesize(std::string name, std::vector<const Expr::Expr*> exprs) {
   result.push_back('(');
   result += name;

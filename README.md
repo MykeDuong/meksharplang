@@ -37,23 +37,38 @@
 - Class-based
 - Methods are declared without fun keyword
 - States: Assigning will create it if it does not exist yet.
-- this keyword
+- "this" keyword
 - Initializer inherited from superclass' constructor.
 - Inheritance with < operator.
 
 ## Standard Library - ?
 
 ## Precedence (bottom to top):
-- program        → statement* EOF ;
-- statement      → exprStmt | printStmt ;
+- program        → declaration* EOF ;
+- declaration    → funDecl | varDecl | statement ;
+- funDecl        → "fun" function ;
+- function       → IDENTIFIER "(" parameters? ")" block ;
+- parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
+- varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+- statement      → exprStmt | ifStmt | printStmt | whileStmt | breakStmt | returnStmt | block;
 - exprStmt       → expression ";" ;
+- breakStmt      → "break;" ;
+- ifStmt         → "if" "(" expression ")" statement ( "else" statement )? ;
 - printStmt      → "print" expression ";" ;
+- whileStmt      → "while" "(" expression ")" statement ;
+- block          → "{" declaration* "}" ;
 - expression     → comma ;
-- comma          → ternary ( "," ternary )* ;
+- comma          → assignment ( "," assignment )* ;
+- function (expr)→ "(" parameters? ")" block | comma ;
+- assignment     → IDENTIFIER "=" assignment | ternary ;
 - ternary        → equality ("?" expression ":" ternary)?
+- logic_or       → logic_and ( "or" logic_and )* ;
+- logic_and      → equality ( "and" equality )* ;
 - equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 - comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 - term           → factor ( ( "-" | "+" ) factor )* ;
 - factor         → unary ( ( "/" | "*" ) unary )* ;
 - unary          → ( "!" | "-" ) unary | primary ;
-- primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+- call           → primary ( "(" arguments? ")" )* ;
+- arguments      → expression ( "," expression )* ;
+- primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER;

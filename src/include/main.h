@@ -9,7 +9,7 @@ void runFile(std::string const& filename);
 
 void runPrompt();
 
-void run(std::string const& source);
+void run(std::string const& source, bool isRepl);
 
 void error(int line,std::string const& message);
 

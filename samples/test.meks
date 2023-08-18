@@ -1,9 +1,6 @@
-/*
-  First level
-  /*
-    Second level 
-    /* Third level */ 
-  */
-*/
+var a = fun () {};
+var b = fun(a, b, c, d) {var x = 1;};
 
-< 3
+print a;
+print b;
+

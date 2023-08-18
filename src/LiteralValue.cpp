@@ -1,8 +1,10 @@
 #include "./include/LiteralValue.h"
 #include <cmath>
+#include <memory>
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include "./include/Callable.h"
 
 LiteralValue::LiteralValue() : type(LITERAL_NULL) {}
 
@@ -12,10 +14,13 @@ LiteralValue::LiteralValue(std::string value) : stringValue(value), type(LITERAL
 
 LiteralValue::LiteralValue(bool value) : boolValue(value), type(LITERAL_BOOL) {}
 
+LiteralValue::LiteralValue(Callable* value) : callableValue(std::shared_ptr<Callable>(value)), type(LITERAL_CALLABLE) {}
+
 LiteralValue::LiteralValue(const LiteralValue& value) : 
   numericValue(value.numericValue), 
   stringValue(value.stringValue), 
   boolValue(value.boolValue),
+  callableValue(std::shared_ptr<Callable>(value.callableValue)),
   type(value.type)
 {}
 
@@ -23,6 +28,7 @@ LiteralValue::LiteralValue(const LiteralValue* value) :
   numericValue(value->numericValue),
   stringValue(value->stringValue),
   boolValue(value->boolValue),
+  callableValue(std::shared_ptr<Callable>(value->callableValue)),
   type(value->type)
 {}
 
@@ -31,7 +37,7 @@ std::string LiteralValue::toString() const {
     case LiteralValue::LITERAL_NULL:
       return "nah";
       break;
-    case LiteralValue::LITERAL_NUMBER: 
+    case LiteralValue::LITERAL_NUMBER:
       {
         double intpart;
         std::stringstream stream;
@@ -44,6 +50,10 @@ std::string LiteralValue::toString() const {
       break;
     case LiteralValue::LITERAL_BOOL:
       return this->boolValue ? "true" : "false";
+      break;
+    case LiteralValue::LITERAL_CALLABLE:
+      return callableValue->toString();
+      break;
   }
 
 }
@@ -64,6 +74,8 @@ bool LiteralValue::operator==(const LiteralValue& v) {
       return boolValue == v.boolValue;
     case LITERAL_NULL:
       return true;
+    case LITERAL_CALLABLE:
+      return callableValue == v.callableValue;
   }
 }
 
@@ -79,6 +91,8 @@ bool LiteralValue::operator!=(const LiteralValue& v) {
       return boolValue != v.boolValue;
     case LITERAL_NULL:
       return false;
+    case LITERAL_CALLABLE:
+      return callableValue != v.callableValue;
   }
 }
 
@@ -93,7 +107,7 @@ std::ostream& operator<<(std::ostream& out, const LiteralValue::Type value) {
     MAPENTRY(LiteralValue::LITERAL_NULL),
     MAPENTRY(LiteralValue::LITERAL_STRING),
     MAPENTRY(LiteralValue::LITERAL_NUMBER),
-
+    MAPENTRY(LiteralValue::LITERAL_CALLABLE),
     {LiteralValue::LITERAL_STRING, 0}
   };
 #undef MAPENTRY

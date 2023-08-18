@@ -1,5 +1,5 @@
-#ifndef UNARY_H
-#define UNARY_H
+#ifndef LOGICAL_H
+#define LOGICAL_H
 
 #include "./Expr.h"
 #include "./Token.h"
@@ -8,12 +8,13 @@
 
 namespace Expr {
   class Expr;
-  class Unary: public Expr {
+  class Logical: public Expr {
     public:
+      const Expr* left;
       const Token* op;
       const Expr* right;
 
-      Unary(const Token* op, const Expr* right);
+      Logical(const Expr* left, const Token* op, const Expr* right);
       void const accept(Visitor* visitor) const;
   };
 };

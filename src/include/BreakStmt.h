@@ -1,18 +1,18 @@
-#ifndef GROUPING_H
-#define GROUPING_H
+#ifndef BREAKSTMT_H
+#define BREAKSTMT_H
 
+#include "./Stmt.h"
 #include "./Expr.h"
 #include "./Token.h"
 #include "./LiteralValue.h"
 #include <vector>
 
-namespace Expr {
-  class Expr;
-  class Grouping: public Expr {
+namespace Stmt {
+  class Stmt;
+  class BreakStmt: public Stmt {
     public:
-      const Expr* expr;
 
-      Grouping(const Expr* expr);
+      BreakStmt();
       void const accept(Visitor* visitor) const;
   };
 };
