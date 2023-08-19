@@ -10,8 +10,11 @@
 #include "./Literal.h"
 #include "./Logical.h"
 #include "./Unary.h"
+#include "./Array.h"
+#include "./ArrayElement.h"
 #include "./Variable.h"
 #include "./Block.h"
+#include "./ClassStmt.h"
 #include "./Expression.h"
 #include "./Function.h"
 #include "./IfStmt.h"
@@ -32,6 +35,8 @@ namespace Expr {
       virtual void visit(const Literal* literal) = 0;
       virtual void visit(const Logical* logical) = 0;
       virtual void visit(const Unary* unary) = 0;
+      virtual void visit(const Array* array) = 0;
+      virtual void visit(const ArrayElement* arrayelement) = 0;
       virtual void visit(const Variable* variable) = 0;
     };
 };
@@ -40,6 +45,7 @@ namespace Stmt {
   class Visitor {
     public:
       virtual void visit(const Block* block) = 0;
+      virtual void visit(const ClassStmt* classstmt) = 0;
       virtual void visit(const Expression* expression) = 0;
       virtual void visit(const Function* function) = 0;
       virtual void visit(const IfStmt* ifstmt) = 0;

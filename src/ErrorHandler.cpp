@@ -11,7 +11,7 @@ void ErrorHandler::error(int line, std::string const& message) {
   report(line, "", message);
 }
 
-void ErrorHandler::error(Token* token, std::string const& message) {
+void ErrorHandler::error(const Token* const token, std::string const& message) {
   if (token->type == END_OF_FILE) {
     ErrorHandler::report(token->line, " at end", message);
   } else {

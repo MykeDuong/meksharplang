@@ -99,6 +99,13 @@ void DefinitionChecker::visit(const Expr::Call* expr) {
   result = DefinitionChecker::NodeDefinition::EXPR_CALL;
 }
 
+void DefinitionChecker::visit(const Expr::Array* expr) {
+  result = DefinitionChecker::EXPR_ARR;
+}
+void DefinitionChecker::visit(const Expr::ArrayElement* expr) {
+  result = DefinitionChecker::EXPR_ARR_ELEMENT;
+}
+
 void DefinitionChecker::visit(const Expr::Variable* expr) {
   result = DefinitionChecker::NodeDefinition::EXPR_VARIABLE;
 }

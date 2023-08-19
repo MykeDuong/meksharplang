@@ -24,19 +24,22 @@ def main():
         "Literal": [["LiteralValue*", "value"]],
         "Logical": [["Expr*", "left"], ["Token*", "op"], ["Expr*", "right"]],
         "Unary": [["Token*", "op"], ["Expr*", "right"]],
+        "Array": [["std::vector<Expr*>", "elements"], ["Token*", "square"]],
+        "ArrayElement": [["Expr*", "callee"], ["Expr*", "index"], ["Token*", "square"]],
         "Variable": [["Token*", "name"]],
         "dep" : []
     }
     
     stmt_types = {
         "Block": [["std::vector<Stmt*>", "statements"]],
+        "ClassStmt": [["Token*", "name"], ["std::vector<Function*>", "methods"]],
         "Expression": [["Expr::Expr*", "expression"]],
         "Function": [["Token*", "name"], ["Expr::FunctionExpr*", "function"]],
         "IfStmt": [["Expr::Expr*", "condition"], ["Stmt*", "thenBranch"], ["Stmt*", "elseBranch"]],
         "Print": [["Expr::Expr*", "expression"]],
         "Var": [["Token*", "name"], ["Expr::Expr*", "initializer"]],
         "WhileStmt": [["Expr::Expr*", "condition"], ["Stmt*", "body"]],
-        "BreakStmt": [],
+        "BreakStmt": [["Token*", "keyword"]],
         "ReturnStmt": [["Token*", "keyword"], ["Expr::Expr*", "value"]],
         "dep": ["Expr"]
     }
@@ -98,6 +101,8 @@ def write_header(output_dir, base, class_name, fields, dep):
         f.write('#include "./Stmt.h"\n')
     if base == "Stmt" and class_name == "Function":
         f.write('#include "./FunctionExpr.h"\n')
+    if base == "Stmt" and class_name == "ClassStmt":
+        f.write('#include "./Function.h"\n')
 
     for d in dep:
         f.write('#include "./' + d + '.h"\n')

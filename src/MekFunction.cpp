@@ -28,7 +28,6 @@ int MekFunction::arity() {
 }
 
 std::string MekFunction::toString() {
-  std::cout <<arity() << std::endl;
   if (name.size() == 0) return "<anonymous function>";
   return "<fn " + name + ">";
 }

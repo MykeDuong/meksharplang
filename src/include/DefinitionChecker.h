@@ -1,6 +1,7 @@
 #ifndef DEFINITION_CHECKER_H
 #define DEFINITION_CHECKER_H
 
+#include "ArrayElement.h"
 #include "Assign.h"
 #include "Block.h"
 #include "BreakStmt.h"
@@ -13,7 +14,7 @@
 
 #include "Stmt.h"
 #include "WhileStmt.h"
-class DefinitionChecker: public Expr::Visitor, Stmt::Visitor {
+class DefinitionChecker final: public Expr::Visitor, Stmt::Visitor {
   public:
     enum NodeDefinition {
       STMT_EXPR,
@@ -25,7 +26,6 @@ class DefinitionChecker: public Expr::Visitor, Stmt::Visitor {
       STMT_FUN,
       STMT_RETURN,
       STMT_VAR,
-      EXPR_FUN,
       EXPR_ASSIGN,
       EXPR_BINARY,
       EXPR_TERNARY,
@@ -34,6 +34,9 @@ class DefinitionChecker: public Expr::Visitor, Stmt::Visitor {
       EXPR_LITERAL,
       EXPR_UNARY,
       EXPR_CALL,
+      EXPR_FUN,
+      EXPR_ARR,
+      EXPR_ARR_ELEMENT,
       EXPR_VARIABLE
     };
   
@@ -53,7 +56,6 @@ class DefinitionChecker: public Expr::Visitor, Stmt::Visitor {
     void visit(const Stmt::Function* stmt);
     void visit(const Stmt::ReturnStmt* stmt);
     void visit(const Stmt::Var* stmt);
-    void visit(const Expr::FunctionExpr* expr);
     void visit(const Expr::Assign* expr);
     void visit(const Expr::Binary* expr);
     void visit(const Expr::Ternary* expr);
@@ -62,6 +64,9 @@ class DefinitionChecker: public Expr::Visitor, Stmt::Visitor {
     void visit(const Expr::Literal* expr);
     void visit(const Expr::Unary* expr);
     void visit(const Expr::Call* expr);
+    void visit(const Expr::FunctionExpr* expr);
+    void visit(const Expr::Array* expr);
+    void visit(const Expr::ArrayElement* expr);
     void visit(const Expr::Variable* expr);
     NodeDefinition check(const Stmt::Stmt* stmt);
     NodeDefinition check(const Expr::Expr* expr);

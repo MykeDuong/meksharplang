@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include <vector>
 
 class Callable;
 
@@ -14,14 +15,17 @@ class LiteralValue {
       LITERAL_NUMBER,
       LITERAL_NULL,
       LITERAL_BOOL,
-      LITERAL_CALLABLE
+      LITERAL_CALLABLE,
+      LITERAL_ARRAY
     };
 
     LiteralValue();
+    ~LiteralValue();
     LiteralValue(double value);
     LiteralValue(std::string value);
     LiteralValue(bool value);
     LiteralValue(Callable* callable);
+    LiteralValue(std::vector<LiteralValue*> array);
     LiteralValue(const LiteralValue& value);
     LiteralValue(const LiteralValue* value);
     friend std::ostream& operator<<(std::ostream& os, const LiteralValue& literalValue);
@@ -33,7 +37,8 @@ class LiteralValue {
     double numericValue;
     std::string stringValue;
     bool boolValue;
-    std::shared_ptr<Callable> callableValue;
+    std::vector<LiteralValue*> arrayValue;
+    Callable* callableValue;
 };
 
 std::ostream& operator<<(std::ostream& out, const LiteralValue::Type value);

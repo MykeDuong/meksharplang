@@ -8,6 +8,8 @@ std::ostream& operator<<(std::ostream& out, const TokenType value) {
   } entries[] = {
     MAPENTRY(LEFT_PAREN),
     MAPENTRY(RIGHT_PAREN),
+    MAPENTRY(LEFT_SQUARE),
+    MAPENTRY(RIGHT_SQUARE),
     MAPENTRY(LEFT_BRACE),
     MAPENTRY(RIGHT_BRACE),
     MAPENTRY(COMMA),

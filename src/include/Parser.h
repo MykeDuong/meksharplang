@@ -24,6 +24,7 @@ class Parser {
   private:
     Stmt::Stmt* declaration();
     Stmt::Stmt* varDeclaration();
+    Stmt::Stmt* classDeclaration();
     Stmt::Stmt* statement();
     Stmt::Stmt* ifStatement();
     Stmt::Stmt* breakStatement();
@@ -36,7 +37,6 @@ class Parser {
     Stmt::Function* function(const std::string& kind);
     Expr::Expr* expression();
     Expr::Expr* comma();
-    Expr::Expr* functionExpression(bool funMatched = false);
     Expr::Expr* assignment();
     Expr::Expr* ternary();
     Expr::Expr* orStmt();
@@ -47,6 +47,9 @@ class Parser {
     Expr::Expr* factor();
     Expr::Expr* unary();
     Expr::Expr* call();
+    Expr::Expr* functionExpression(bool funMatched = false);
+    Expr::Expr* array();
+    Expr::Expr* arrayElement();
     Expr::Expr* primary();
     Expr::Expr* finishCall(Expr::Expr* callee);
     Expr::FunctionExpr* finishFunction(const std::string& kind = "function");

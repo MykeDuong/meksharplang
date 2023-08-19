@@ -8,19 +8,26 @@
 
 LiteralValue::LiteralValue() : type(LITERAL_NULL) {}
 
+LiteralValue::~LiteralValue() {
+
+}
+
 LiteralValue::LiteralValue(double value) : numericValue(value), type(LITERAL_NUMBER) {}
 
 LiteralValue::LiteralValue(std::string value) : stringValue(value), type(LITERAL_STRING) {}
 
 LiteralValue::LiteralValue(bool value) : boolValue(value), type(LITERAL_BOOL) {}
 
-LiteralValue::LiteralValue(Callable* value) : callableValue(std::shared_ptr<Callable>(value)), type(LITERAL_CALLABLE) {}
+LiteralValue::LiteralValue(Callable* value) : callableValue(value), type(LITERAL_CALLABLE) {}
 
+LiteralValue::LiteralValue(std::vector<LiteralValue*> array) : arrayValue(array), type(LITERAL_ARRAY) {}
+  
 LiteralValue::LiteralValue(const LiteralValue& value) : 
   numericValue(value.numericValue), 
   stringValue(value.stringValue), 
   boolValue(value.boolValue),
-  callableValue(std::shared_ptr<Callable>(value.callableValue)),
+  callableValue(value.callableValue),
+  arrayValue(value.arrayValue),
   type(value.type)
 {}
 
@@ -28,7 +35,8 @@ LiteralValue::LiteralValue(const LiteralValue* value) :
   numericValue(value->numericValue),
   stringValue(value->stringValue),
   boolValue(value->boolValue),
-  callableValue(std::shared_ptr<Callable>(value->callableValue)),
+  callableValue(value->callableValue),
+  arrayValue(value->arrayValue),
   type(value->type)
 {}
 
@@ -54,6 +62,17 @@ std::string LiteralValue::toString() const {
     case LiteralValue::LITERAL_CALLABLE:
       return callableValue->toString();
       break;
+    case LiteralValue::LITERAL_ARRAY:
+      std::string val = "[";
+      for (int i = 0; i < arrayValue.size(); i++) {
+        val += arrayValue[i]->toString();
+        if (i != arrayValue.size() - 1) {
+          val += ", ";
+        }
+      }
+      val += "]";
+      return val;
+      break;
   }
 
 }
@@ -76,6 +95,8 @@ bool LiteralValue::operator==(const LiteralValue& v) {
       return true;
     case LITERAL_CALLABLE:
       return callableValue == v.callableValue;
+    case LITERAL_ARRAY:
+      return arrayValue == v.arrayValue;
   }
 }
 
@@ -93,6 +114,8 @@ bool LiteralValue::operator!=(const LiteralValue& v) {
       return false;
     case LITERAL_CALLABLE:
       return callableValue != v.callableValue;
+    case LITERAL_ARRAY:
+      return arrayValue != v.arrayValue;
   }
 }
 
@@ -108,6 +131,7 @@ std::ostream& operator<<(std::ostream& out, const LiteralValue::Type value) {
     MAPENTRY(LiteralValue::LITERAL_STRING),
     MAPENTRY(LiteralValue::LITERAL_NUMBER),
     MAPENTRY(LiteralValue::LITERAL_CALLABLE),
+    MAPENTRY(LiteralValue::LITERAL_ARRAY),
     {LiteralValue::LITERAL_STRING, 0}
   };
 #undef MAPENTRY

@@ -2,6 +2,8 @@
 #include "include/Assign.h"
 #include "include/BreakStmt.h"
 #include "include/Call.h"
+#include "include/ClassStmt.h"
+#include "include/DefinitionChecker.h"
 #include "include/Environment.h"
 #include "include/ErrorHandler.h"
 #include "include/Expression.h"
@@ -47,8 +49,10 @@ Interpreter::BreakException::BreakException(const std::string& message) : std::r
 Interpreter::ReturnException::ReturnException(LiteralValue* const value) : value(value), std::runtime_error("Return") {}
 
 void Interpreter::visit(const Stmt::Print* stmt) {
+  std::cout <<"Coming here \n";
   evaluate(stmt->expression);
   std::cout << result->toString() << std::endl;
+  
   delete result;
   result = nullptr;
 }
@@ -64,6 +68,11 @@ void Interpreter::visit(const Stmt::Function* stmt) {
   std::shared_ptr<Environment> closure(this->environment);
   MekFunction* function = new MekFunction(stmt->function, closure);
   environment->define(stmt->name->lexeme, new LiteralValue(function));
+}
+
+void Interpreter::visit(const Stmt::ClassStmt* stmt) {
+  environment->define(stmt->name->lexeme, nullptr);
+  throw RuntimeError(stmt->name, "Sorry, Class is not yet fully implemented.");
 }
 
 void Interpreter::visit(const Stmt::Block* stmt) {
@@ -138,12 +147,16 @@ void Interpreter::visit(const Expr::FunctionExpr* expr) {
   MekFunction* function = new MekFunction(expr, closure);
 
   result = new LiteralValue(function);
-  std::cout << result->toString() << std::endl;
 }
 
 void Interpreter::visit(const Expr::Assign* expr) {
   evaluate(expr->value);
-  environment->assign(expr->name, result);
+
+  if (locals.find(expr) != locals.end()) {
+    environment->assignAt(locals[expr], expr->name, result);
+  } else {
+    environment->assign(expr->name, result);
+  }
 }
 
 void Interpreter::visit(const Expr::Binary* expr) {
@@ -213,10 +226,10 @@ void Interpreter::visit(const Expr::Binary* expr) {
       throw RuntimeError(expr->op, "Operands must be two numbers or two strings.");
       break;
     case BANG_EQUAL:
-      result = new LiteralValue(leftVal->numericValue != rightVal->numericValue);
+      result = new LiteralValue(leftVal != rightVal); 
       break;
     case EQUAL_EQUAL:
-      result = new LiteralValue(leftVal->numericValue == rightVal->numericValue);
+      result = new LiteralValue(leftVal == rightVal); 
       break;
     case MINUS:
       checkNumberOperand(expr->op, leftVal, rightVal);
@@ -318,7 +331,6 @@ void Interpreter::visit(const Expr::Unary* expr) {
 
 void Interpreter::visit(const Expr::Call* expr) {
   evaluate(expr->callee);
-
   LiteralValue* callee = result;
 
   std::vector<LiteralValue*> arguments;
@@ -331,7 +343,7 @@ void Interpreter::visit(const Expr::Call* expr) {
     throw RuntimeError(expr->paren, "Can only call functions and classes");
   }
 
-  Callable* function = callee->callableValue.get();
+  Callable* function = callee->callableValue;
   if (arguments.size() != function->arity()) {
     throw RuntimeError(
       expr->paren, 
@@ -343,8 +355,44 @@ void Interpreter::visit(const Expr::Call* expr) {
   result = function->call(this, arguments);
 }
 
+void Interpreter::visit(const Expr::Array* expr) {
+  std::vector<LiteralValue*> elements;
+
+  for (Expr::Expr* expression: expr->elements) {
+    evaluate(expression);
+    elements.push_back(result);
+  }
+  result = new LiteralValue(elements);
+}
+
+void Interpreter::visit(const Expr::ArrayElement* expr) {
+  evaluate(expr->callee);
+  LiteralValue* callee = result;
+  
+  if (callee->type != LiteralValue::LITERAL_ARRAY) {
+    throw RuntimeError(expr->square, "The identifier is not an array.");
+  }
+
+  evaluate(expr->index);
+  LiteralValue* indexValue = result;
+  if (indexValue->type != LiteralValue::LITERAL_NUMBER) {
+    throw RuntimeError(expr->square, "The given index is not a number.");
+  }
+  double intpart;
+  if (modf(indexValue->numericValue, &intpart) != 0.0) {
+    throw RuntimeError(expr->square, "The given index is not an integer.");
+  }
+
+
+  std::vector<LiteralValue*> array = callee->arrayValue;
+  if (indexValue->numericValue < 0 || indexValue->numericValue >= array.size()) {
+    throw RuntimeError(expr->square, "Index out of range.");
+  } 
+  result = array[indexValue->numericValue]; 
+}
+
 void Interpreter::visit(const Expr::Variable* expr) {
-  result = new LiteralValue(environment->get(expr->name));
+  result = new LiteralValue(lookUpVariable(expr->name, expr));
 }
 
 void Interpreter::interpret(const std::vector<Stmt::Stmt*>& statements, bool isRepl) {
@@ -460,5 +508,19 @@ void Interpreter::executeBlock(const std::vector<Stmt::Stmt*>& statements, Envir
   }catch (RuntimeError& e) {
     this->environment = previous;
     throw e;
+  }
+}
+
+void Interpreter::resolve(const Expr::Expr* expr, int depth) {
+  locals[expr] = depth;
+}
+
+
+LiteralValue* Interpreter::lookUpVariable(const Token* const name, const Expr::Variable* expr) {
+  if (locals.find(expr) == locals.end()) {
+    return globals->get(name);
+  } else {
+    int distance = locals[expr];
+    return environment->getAt(distance, name->lexeme);
   }
 }

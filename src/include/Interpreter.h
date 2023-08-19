@@ -2,10 +2,14 @@
 #define INTERPRETER_H
 
 #include <stdexcept>
+#include <unordered_map>
 #include <vector>
+#include "Array.h"
+#include "ArrayElement.h"
 #include "Assign.h"
 #include "Block.h"
 #include "Call.h"
+#include "ClassStmt.h"
 #include "Environment.h"
 #include "Expression.h"
 #include "Function.h"
@@ -23,7 +27,7 @@
 
 class Callable;
 
-class Interpreter: public Expr::Visitor, Stmt::Visitor {
+class Interpreter final: public Expr::Visitor, Stmt::Visitor {
   public:
     class BreakException: public std::runtime_error {
       public:
@@ -40,6 +44,7 @@ class Interpreter: public Expr::Visitor, Stmt::Visitor {
     LiteralValue* result;
     Environment* environment;
     bool isRepl;
+    std::unordered_map<const Expr::Expr*, int> locals;
    
   public:
     Environment* const globals;
@@ -48,6 +53,7 @@ class Interpreter: public Expr::Visitor, Stmt::Visitor {
     Interpreter();
     void visit(const Stmt::Expression* stmt);
     void visit(const Stmt::Function* stmt);
+    void visit(const Stmt::ClassStmt* stmt);
     void visit(const Stmt::Block* stmt);
     void visit(const Stmt::Print* stmt);
     void visit(const Stmt::WhileStmt* stmt);
@@ -64,9 +70,12 @@ class Interpreter: public Expr::Visitor, Stmt::Visitor {
     void visit(const Expr::Literal* expr);
     void visit(const Expr::Unary* expr);
     void visit(const Expr::Call* expr);
+    void visit(const Expr::Array* expr);
+    void visit(const Expr::ArrayElement* expr);
     void visit(const Expr::Variable* expr);
     void interpret(const std::vector<Stmt::Stmt*>& statements, bool isRepl = false);
     void executeBlock(const std::vector<Stmt::Stmt*>& statements, Environment* environment);
+    void resolve(const Expr::Expr* expr, int depth);
 
   private:
     void evaluate(const Expr::Expr* expr);
@@ -75,6 +84,7 @@ class Interpreter: public Expr::Visitor, Stmt::Visitor {
     void checkNumberOperand(const Token* op, const LiteralValue* operand, std::vector<LiteralValue*> deleted = {});
     void checkNumberOperand(const Token* op, const LiteralValue* leftVal, const LiteralValue* rightVal, std::vector<LiteralValue*> deleted = {});
     void checkNumberOrStringOperand(const Token* op, const LiteralValue* leftVal, const LiteralValue* rightVal, std::vector<LiteralValue*> deleted = {});
+    LiteralValue* lookUpVariable(const Token* const name, const Expr::Variable* expr);
 };
 
 #endif 

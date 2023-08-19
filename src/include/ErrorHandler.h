@@ -11,7 +11,7 @@ class ErrorHandler{
     static bool runtimeErrorHappened;
   public:
     static void error(int line, std::string const& message);
-    static void error(Token* token, std::string const& message);
+    static void error(const Token* const token, std::string const& message);
     static void runtimeError(RuntimeError& error);
     static void report(int line, std::string const& where, std::string const& message);
     static bool hadError();

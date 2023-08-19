@@ -11,8 +11,9 @@ namespace Stmt {
   class Stmt;
   class BreakStmt: public Stmt {
     public:
+      const Token* keyword;
 
-      BreakStmt();
+      BreakStmt(const Token* keyword);
       void const accept(Visitor* visitor) const;
   };
 };

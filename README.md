@@ -46,6 +46,7 @@
 ## Precedence (bottom to top):
 - program        → declaration* EOF ;
 - declaration    → funDecl | varDecl | statement ;
+- classDecl      → "class" IDENTIFIER "{" function* "}" ;
 - funDecl        → "fun" function ;
 - function       → IDENTIFIER "(" parameters? ")" block ;
 - parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
@@ -59,7 +60,6 @@
 - block          → "{" declaration* "}" ;
 - expression     → comma ;
 - comma          → assignment ( "," assignment )* ;
-- function (expr)→ "(" parameters? ")" block | comma ;
 - assignment     → IDENTIFIER "=" assignment | ternary ;
 - ternary        → equality ("?" expression ":" ternary)?
 - logic_or       → logic_and ( "or" logic_and )* ;
@@ -70,5 +70,9 @@
 - factor         → unary ( ( "/" | "*" ) unary )* ;
 - unary          → ( "!" | "-" ) unary | primary ;
 - call           → primary ( "(" arguments? ")" )* ;
-- arguments      → expression ( "," expression )* ;
-- primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER;
+- arguments      → assignment ( "," assignment )* ;
+- function (expr)→ "(" parameters? ")" block | array;
+- array          → '[' + element? + ']' | arrayElement;
+- element        → assignment (',' + assignment)*;
+- array element  → IDENTIFIER '[' expression + ']' | primary;
+- primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER | ;

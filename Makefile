@@ -12,6 +12,9 @@ $(exec): $(objects)
 test:
 	./$(exec) ./samples/test.meks
 
+memory:
+	leaks -atExit -- ./$(exec) ./samples/test.meks | grep LEAK
+
 install:
 	make
 	cp ./mks.out /usr/local/bin/mks

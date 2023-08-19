@@ -37,6 +37,10 @@ void Environment::assign(const Token* const name, LiteralValue* value) {
   }
 }
 
+void Environment::assignAt(int distance, const Token* const name, LiteralValue* value) {
+  ancestor(distance)->values[name->lexeme] = value;
+}
+
 LiteralValue* Environment::get(const Token* const name) {
   if (values.find(name->lexeme) != values.end()) {
     if (values[name->lexeme] == nullptr) {
@@ -61,6 +65,24 @@ LiteralValue* Environment::get(const std::string& name) {
   if (enclosing != nullptr) return enclosing->get(name);
   
   throw RuntimeError(nullptr, "Undefined variable '" + name + "'.");
+}
+
+LiteralValue* Environment::getAt(int distance, const std::string name) {
+  auto ancestorEnv = ancestor(distance);
+  
+  if (ancestorEnv->values[name] == nullptr)
+      throw RuntimeError(nullptr, "Unassigned variable '" + name + "'.");
+  
+  return ancestorEnv->values[name];
+}
+
+Environment* Environment::ancestor(int distance) {
+  Environment* environment = this;
+  for (int i = 0; i < distance; i++) {
+    environment = environment->enclosing;
+  }
+
+  return environment;
 }
 
 bool Environment::contain(const std::string& name) {

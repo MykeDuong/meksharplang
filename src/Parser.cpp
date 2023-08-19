@@ -1,8 +1,11 @@
 #include "./include/Parser.h"
+#include "include/Array.h"
+#include "include/ArrayElement.h"
 #include "include/Assign.h"
 #include "include/Binary.h"
 #include "include/BreakStmt.h"
 #include "include/Call.h"
+#include "include/ClassStmt.h"
 #include "include/DefinitionChecker.h"
 #include "include/ErrorHandler.h"
 #include "include/Expr.h"
@@ -38,6 +41,7 @@ std::vector<Stmt::Stmt*> Parser::parse() {
 
 Stmt::Stmt* Parser::declaration() {
   try {
+    if (match(std::vector<TokenType> { IF })) return classDeclaration();
     if (match(std::vector<TokenType> { FUN })) {
       if (peek()->type == IDENTIFIER)
         return function("function");
@@ -63,6 +67,20 @@ Stmt::Stmt* Parser::varDeclaration() {
 
   consume(SEMICOLON, "Expect ';' after variable declaration.");
   return new Stmt::Var(name, initializer);
+}
+
+Stmt::Stmt* Parser::classDeclaration() {
+  Token* name = consume(IDENTIFIER, "Expect class name.");
+  consume(LEFT_BRACE, "Expect '{' before class body.");
+
+  std::vector<Stmt::Function*> methods;
+  while (!check(RIGHT_BRACE) && !isAtEnd()) {
+    methods.push_back(function("method"));
+  }
+
+  consume(RIGHT_BRACE, "Expect '}' after class body.");
+
+  return new Stmt::ClassStmt(name, methods);
 }
 
 Stmt::Stmt* Parser::statement() {
@@ -92,8 +110,9 @@ Stmt::Stmt* Parser::ifStatement() {
 }
 
 Stmt::Stmt* Parser::breakStatement() {
+  Stmt::BreakStmt* stmt = new Stmt::BreakStmt(previous());
   consume(SEMICOLON, "Expect ';' after 'break'.");
-  return new Stmt::BreakStmt();
+  return stmt;
 }
 
 std::vector<Stmt::Stmt*> Parser::block() {
@@ -172,26 +191,22 @@ Stmt::Stmt* Parser::returnStatement() {
   return new Stmt::ReturnStmt(keyword, value);
 }
 
+Stmt::Function* Parser::function(const std::string& kind) {
+  Token* name = consume(IDENTIFIER, "Expect " + kind + " name.");
+  return new Stmt::Function(name, finishFunction());
+}
+
 Stmt::Stmt* Parser::expressionStatement() {
   Expr::Expr* expr = expression();
   consume(SEMICOLON, "Expected ';' after expression.");
   return new Stmt::Expression(expr);
 }
 
-Stmt::Function* Parser::function(const std::string& kind) {
-  Token* name = consume(IDENTIFIER, "Expect " + kind + " name.");
-  return new Stmt::Function(name, finishFunction());
-}
-
 Expr::Expr* Parser::expression() {
-  return functionExpression();
+  return comma();
 }
 
 Expr::Expr* Parser::comma() {
-  if (match(std::vector<TokenType>{ FUN })) {
-    return functionExpression(true);
-  }
-
   Expr::Expr* expr = assignment();
 
   while (match(std::vector<TokenType> { COMMA })) {
@@ -203,15 +218,6 @@ Expr::Expr* Parser::comma() {
   return expr;
 }
 
-Expr::Expr* Parser::functionExpression(bool funMatched) {
-  if (!funMatched) {
-    if (match(std::vector<TokenType>{ FUN })) {
-      return finishFunction();
-    }
-    return assignment();
-  }
-  return finishFunction();
-}
 
 Expr::Expr* Parser::assignment() {
   Expr::Expr* expr = ternary();
@@ -352,7 +358,7 @@ Expr::Expr* Parser::unary() {
 }
 
 Expr::Expr* Parser::call() {
-  Expr::Expr* expr = primary();
+  Expr::Expr* expr = functionExpression();
 
   while (true) {
     if (match(std::vector<TokenType> { LEFT_PAREN })) {
@@ -361,6 +367,43 @@ Expr::Expr* Parser::call() {
       break;
     }
   }
+  return expr;
+}
+
+Expr::Expr* Parser::functionExpression(bool funMatched) {
+  if (!funMatched) {
+    if (match(std::vector<TokenType>{ FUN })) {
+      return finishFunction();
+    }
+    return array();
+  }
+  return finishFunction();
+}
+
+
+Expr::Expr* Parser::array() {
+  //std::cout << peek()->type << std::endl;
+  if (!match(std::vector<TokenType> { LEFT_SQUARE })) return arrayElement();
+
+  std::vector<Expr::Expr*> elements;
+  if (!check(RIGHT_SQUARE)) {
+    do {
+      elements.push_back(assignment());
+    } while (match(std::vector<TokenType>{ COMMA }));
+  }
+  Token* paren = consume(RIGHT_SQUARE, "Expected ']' after array elements.");
+  return new Expr::Array(elements, paren);
+}
+
+Expr::Expr* Parser::arrayElement() {
+  Expr::Expr* expr = primary();
+
+  if (match(std::vector<TokenType>{ LEFT_SQUARE })) {
+    Expr::Expr* index = assignment();
+    Token* square = consume(RIGHT_SQUARE, "Expect ']' after array index.");
+    return new Expr::ArrayElement(expr, index, square);
+  }
+  
   return expr;
 }
 
@@ -378,7 +421,6 @@ Expr::Expr* Parser::primary() {
     consume(RIGHT_PAREN, "Expect ')' after expression.");
     return new Expr::Grouping(expr);
   }
-
   throw error(peek(), "Expect expression.");
 }
 
@@ -390,7 +432,7 @@ Expr::Expr* Parser::finishCall(Expr::Expr* callee) {
       if (arguments.size() >= 255) {
         error(peek(), "Cannot have more than 255 arguments.");
       }
-      arguments.push_back(functionExpression());
+      arguments.push_back(assignment());
     } while (match(std::vector<TokenType> { COMMA }));
   }
   

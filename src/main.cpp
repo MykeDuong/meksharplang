@@ -3,6 +3,7 @@
 #include "include/Interpreter.h"
 #include "include/LiteralValue.h"
 #include "include/Parser.h"
+#include "include/Resolver.h"
 #include "include/Scanner.h"
 #include "include/Binary.h"
 #include "include/Stmt.h"
@@ -72,18 +73,17 @@ void run(std::string const& source, bool isRepl) {
   std::vector<Token*> tokens = scanner->scanTokens();
 
   delete scanner;
-  /*
-  for (Token* token: tokens) {
-    std::cout << *token << std::endl;
-  }
-  */ 
 
   Parser* parser = new Parser(tokens);
   std::vector<Stmt::Stmt*> stmt = parser->parse();
-
+  delete parser;
   if (ErrorHandler::hadError()) return;
 
   //std::cout << ((new AstPrinter())->print(expr)) << std::endl;
+  Resolver* resolver = new Resolver(interpreter);
+  resolver->resolve(stmt);
+  delete resolver;
+  if (ErrorHandler::hadError()) return;
 
   interpreter->interpret(stmt, isRepl);
 }
