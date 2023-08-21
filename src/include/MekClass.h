@@ -2,13 +2,19 @@
 #define MEKCLASS_H
 
 #include "Callable.h"
+#include "LiteralValue.h"
+#include <unordered_map>
 
 class MekClass final: public Callable { 
   public:
     const std::string name;
+    std::unordered_map<std::string, MekFunction*> methods;
 
-    MekClass(std::string name);
-    std::string toString();
+    MekClass(std::string name, std::unordered_map<std::string, MekFunction*> methods);
+    LiteralValue * call(Interpreter *interpreter, std::vector<LiteralValue *> &arguments) override;
+    MekFunction* findMethod(std::string name);
+    int arity() override;
+    std::string toString() override;
 };
 
-#endif MEKCLASS_H 
+#endif 

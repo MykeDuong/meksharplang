@@ -14,6 +14,7 @@
 #include "Expression.h"
 #include "Function.h"
 #include "FunctionExpr.h"
+#include "Get.h"
 #include "IfStmt.h"
 #include "LiteralValue.h"
 #include "Logical.h"
@@ -70,6 +71,8 @@ class Interpreter final: public Expr::Visitor, Stmt::Visitor {
     void visit(const Expr::Literal* expr);
     void visit(const Expr::Unary* expr);
     void visit(const Expr::Call* expr);
+    void visit(const Expr::Get* expr);
+    void visit(const Expr::Set* expr);
     void visit(const Expr::Array* expr);
     void visit(const Expr::ArrayElement* expr);
     void visit(const Expr::Variable* expr);

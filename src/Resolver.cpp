@@ -1,6 +1,7 @@
 #include "./include/Resolver.h"
 #include "./include/ErrorHandler.h"
 #include "include/ClassStmt.h"
+#include "include/Function.h"
 #include <string>
 #include <unordered_map>
 
@@ -33,6 +34,13 @@ void Resolver::visit(const Stmt::IfStmt* ifstmt) {
 void Resolver::visit(const Stmt::ClassStmt* stmt) {
   declare(stmt->name);
   define(stmt->name);
+
+  for (Stmt::Function* method: stmt->methods) {
+    FunctionType declaration = FunctionType::METHOD;
+    declare(method->name);
+    define(method->name);
+    resolveFunction(method->function, declaration);
+  }
 }
 
 void Resolver::visit(const Stmt::Print* print) {
@@ -102,6 +110,15 @@ void Resolver::visit(const Expr::Literal* literal) {}
 void Resolver::visit(const Expr::Logical* logical) {
   resolve(logical->left);
   resolve(logical->right);
+}
+
+void Resolver::visit(const Expr::Set* set) {
+  resolve(set->value);
+  resolve(set->obj);
+}
+
+void Resolver::visit(const Expr::Get* get) {
+  resolve(get->obj);
 }
 
 void Resolver::visit(const Expr::Unary* unary) {

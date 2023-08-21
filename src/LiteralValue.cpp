@@ -5,12 +5,13 @@
 #include <sstream>
 #include <iomanip>
 #include "./include/Callable.h"
+#include "include/MekFunction.h"
+#include "include/MekClass.h"
+#include "include/MekInstance.h"
 
 LiteralValue::LiteralValue() : type(LITERAL_NULL) {}
 
-LiteralValue::~LiteralValue() {
-
-}
+LiteralValue::~LiteralValue() {}
 
 LiteralValue::LiteralValue(double value) : numericValue(value), type(LITERAL_NUMBER) {}
 
@@ -18,7 +19,11 @@ LiteralValue::LiteralValue(std::string value) : stringValue(value), type(LITERAL
 
 LiteralValue::LiteralValue(bool value) : boolValue(value), type(LITERAL_BOOL) {}
 
-LiteralValue::LiteralValue(Callable* value) : callableValue(value), type(LITERAL_CALLABLE) {}
+LiteralValue::LiteralValue(MekFunction* value) : functionValue(value), type(LITERAL_FUNCTION) {}
+
+LiteralValue::LiteralValue(MekClass* value) : classValue(value), type(LITERAL_CLASS) {}
+
+LiteralValue::LiteralValue(MekInstance* value) : instanceValue(value), type(LITERAL_INSTANCE) {}
 
 LiteralValue::LiteralValue(std::vector<LiteralValue*> array) : arrayValue(array), type(LITERAL_ARRAY) {}
   
@@ -26,7 +31,9 @@ LiteralValue::LiteralValue(const LiteralValue& value) :
   numericValue(value.numericValue), 
   stringValue(value.stringValue), 
   boolValue(value.boolValue),
-  callableValue(value.callableValue),
+  functionValue(value.functionValue),
+  classValue(value.classValue),
+  instanceValue(value.instanceValue),
   arrayValue(value.arrayValue),
   type(value.type)
 {}
@@ -35,7 +42,9 @@ LiteralValue::LiteralValue(const LiteralValue* value) :
   numericValue(value->numericValue),
   stringValue(value->stringValue),
   boolValue(value->boolValue),
-  callableValue(value->callableValue),
+  functionValue(value->functionValue),
+  classValue(value->classValue),
+  instanceValue(value->instanceValue),
   arrayValue(value->arrayValue),
   type(value->type)
 {}
@@ -59,8 +68,14 @@ std::string LiteralValue::toString() const {
     case LiteralValue::LITERAL_BOOL:
       return this->boolValue ? "true" : "false";
       break;
-    case LiteralValue::LITERAL_CALLABLE:
-      return callableValue->toString();
+    case LiteralValue::LITERAL_FUNCTION:
+      return functionValue->toString();
+      break;
+    case LiteralValue::LITERAL_CLASS:
+      return classValue->toString();
+      break;
+    case LiteralValue::LITERAL_INSTANCE:
+      return instanceValue->toString();
       break;
     case LiteralValue::LITERAL_ARRAY:
       std::string val = "[";
@@ -93,8 +108,12 @@ bool LiteralValue::operator==(const LiteralValue& v) {
       return boolValue == v.boolValue;
     case LITERAL_NULL:
       return true;
-    case LITERAL_CALLABLE:
-      return callableValue == v.callableValue;
+    case LITERAL_FUNCTION:
+      return functionValue == v.functionValue;
+    case LITERAL_CLASS:
+      return classValue == v.classValue;
+    case LITERAL_INSTANCE:
+      return instanceValue == v.instanceValue;
     case LITERAL_ARRAY:
       return arrayValue == v.arrayValue;
   }
@@ -112,8 +131,12 @@ bool LiteralValue::operator!=(const LiteralValue& v) {
       return boolValue != v.boolValue;
     case LITERAL_NULL:
       return false;
-    case LITERAL_CALLABLE:
-      return callableValue != v.callableValue;
+    case LITERAL_FUNCTION:
+      return functionValue != v.functionValue;
+    case LITERAL_CLASS:
+      return classValue != v.classValue;
+    case LITERAL_INSTANCE:
+      return instanceValue != v.instanceValue;
     case LITERAL_ARRAY:
       return arrayValue != v.arrayValue;
   }
@@ -130,7 +153,9 @@ std::ostream& operator<<(std::ostream& out, const LiteralValue::Type value) {
     MAPENTRY(LiteralValue::LITERAL_NULL),
     MAPENTRY(LiteralValue::LITERAL_STRING),
     MAPENTRY(LiteralValue::LITERAL_NUMBER),
-    MAPENTRY(LiteralValue::LITERAL_CALLABLE),
+    MAPENTRY(LiteralValue::LITERAL_FUNCTION),
+    MAPENTRY(LiteralValue::LITERAL_CLASS),
+    MAPENTRY(LiteralValue::LITERAL_INSTANCE),
     MAPENTRY(LiteralValue::LITERAL_ARRAY),
     {LiteralValue::LITERAL_STRING, 0}
   };

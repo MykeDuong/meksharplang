@@ -38,7 +38,7 @@ void Environment::assign(const Token* const name, LiteralValue* value) {
 }
 
 void Environment::assignAt(int distance, const Token* const name, LiteralValue* value) {
-  ancestor(distance)->values[name->lexeme] = value;
+  ancestor(distance)->values[name->lexeme] = new LiteralValue(value);
 }
 
 LiteralValue* Environment::get(const Token* const name) {
@@ -46,10 +46,10 @@ LiteralValue* Environment::get(const Token* const name) {
     if (values[name->lexeme] == nullptr) {
       throw RuntimeError(name, "Unassigned variable '" + name->lexeme + "'.");
     }
-    return values[name->lexeme];
+    return new LiteralValue(values[name->lexeme]);
   }
   
-  if (enclosing != nullptr) return enclosing->get(name);
+  if (enclosing != nullptr) return new LiteralValue(enclosing->get(name));
   
   throw RuntimeError(name, "Undefined variable '" + name->lexeme + "'.");
 }
@@ -59,10 +59,10 @@ LiteralValue* Environment::get(const std::string& name) {
     if (values[name] == nullptr) {
       throw RuntimeError(nullptr, "Unassigned variable '" + name + "'.");
     }
-    return values[name];
+    return new LiteralValue(values[name]);
   }
   
-  if (enclosing != nullptr) return enclosing->get(name);
+  if (enclosing != nullptr) return new LiteralValue(enclosing->get(name));
   
   throw RuntimeError(nullptr, "Undefined variable '" + name + "'.");
 }
@@ -73,7 +73,7 @@ LiteralValue* Environment::getAt(int distance, const std::string name) {
   if (ancestorEnv->values[name] == nullptr)
       throw RuntimeError(nullptr, "Unassigned variable '" + name + "'.");
   
-  return ancestorEnv->values[name];
+  return new LiteralValue(ancestorEnv->values[name]);
 }
 
 Environment* Environment::ancestor(int distance) {

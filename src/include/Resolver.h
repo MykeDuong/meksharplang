@@ -4,6 +4,8 @@
 #include "Array.h"
 #include "ArrayElement.h"
 #include "ClassStmt.h"
+#include "Get.h"
+#include "Set.h"
 #include "Visitor.h"
 #include "Interpreter.h"
 #include <unordered_map>
@@ -11,7 +13,7 @@
 
 class Resolver final: public Expr::Visitor, Stmt::Visitor {
   private:
-    enum FunctionType { NONE, FUNCTION };
+    enum FunctionType { NONE, FUNCTION, METHOD };
   private:
     Interpreter* interpreter;
     std::vector<std::unordered_map<std::string, bool>> scopes;
@@ -38,6 +40,8 @@ class Resolver final: public Expr::Visitor, Stmt::Visitor {
     void visit(const Expr::Grouping* grouping) override;
     void visit(const Expr::Literal* literal) override;
     void visit(const Expr::Logical* logical) override;
+    void visit(const Expr::Set* set) override;
+    void visit(const Expr::Get* get) override;
     void visit(const Expr::Unary* unary) override;
     void visit(const Expr::Array* array) override;
     void visit(const Expr::ArrayElement* arrayElement) override;

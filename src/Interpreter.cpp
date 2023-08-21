@@ -7,10 +7,14 @@
 #include "include/Environment.h"
 #include "include/ErrorHandler.h"
 #include "include/Expression.h"
+#include "include/Function.h"
 #include "include/FunctionExpr.h"
+#include "include/Get.h"
 #include "include/IfStmt.h"
 #include "include/LiteralValue.h"
 #include "include/MekFunction.h"
+#include "include/MekClass.h"
+#include "include/MekInstance.h"
 #include "include/Print.h"
 #include "include/ReturnStmt.h"
 #include "include/RuntimeError.h"
@@ -23,6 +27,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include "include/Callable.h"
 
@@ -49,7 +54,6 @@ Interpreter::BreakException::BreakException(const std::string& message) : std::r
 Interpreter::ReturnException::ReturnException(LiteralValue* const value) : value(value), std::runtime_error("Return") {}
 
 void Interpreter::visit(const Stmt::Print* stmt) {
-  std::cout <<"Coming here \n";
   evaluate(stmt->expression);
   std::cout << result->toString() << std::endl;
   
@@ -72,7 +76,20 @@ void Interpreter::visit(const Stmt::Function* stmt) {
 
 void Interpreter::visit(const Stmt::ClassStmt* stmt) {
   environment->define(stmt->name->lexeme, nullptr);
-  throw RuntimeError(stmt->name, "Sorry, Class is not yet fully implemented.");
+  std::unordered_map<std::string, MekFunction*> methods;
+
+  for (Stmt::Function* method: stmt->methods) {
+    MekFunction* function = new MekFunction(method->function, std::shared_ptr<Environment>(environment));
+    if (methods.find(method->name->lexeme) != methods.end()) {
+      throw RuntimeError(method->name, "Overloading not supported.");
+    }
+    methods[method->name->lexeme] = function;
+  }
+
+  MekClass* klass = new MekClass(stmt->name->lexeme, methods);
+  LiteralValue* classValue = new LiteralValue(klass);
+  environment->assign(stmt->name, classValue);
+  delete classValue;
 }
 
 void Interpreter::visit(const Stmt::Block* stmt) {
@@ -226,10 +243,10 @@ void Interpreter::visit(const Expr::Binary* expr) {
       throw RuntimeError(expr->op, "Operands must be two numbers or two strings.");
       break;
     case BANG_EQUAL:
-      result = new LiteralValue(leftVal != rightVal); 
+      result = new LiteralValue(*leftVal != *rightVal); 
       break;
     case EQUAL_EQUAL:
-      result = new LiteralValue(leftVal == rightVal); 
+      result = new LiteralValue(*leftVal == *rightVal); 
       break;
     case MINUS:
       checkNumberOperand(expr->op, leftVal, rightVal);
@@ -339,11 +356,19 @@ void Interpreter::visit(const Expr::Call* expr) {
     evaluate(argument);
     arguments.push_back(result);
   }
-  if (callee->type != LiteralValue::LITERAL_CALLABLE) {
+  if (callee->type != LiteralValue::LITERAL_CLASS && callee->type != LiteralValue::LITERAL_FUNCTION) {
     throw RuntimeError(expr->paren, "Can only call functions and classes");
   }
 
-  Callable* function = callee->callableValue;
+  Callable* function;
+  
+  if (callee->type == LiteralValue::LITERAL_FUNCTION) {
+    function = callee->functionValue;
+  }
+  if (callee->type == LiteralValue::LITERAL_CLASS) {
+    function = callee->classValue;
+  }
+
   if (arguments.size() != function->arity()) {
     throw RuntimeError(
       expr->paren, 
@@ -353,6 +378,33 @@ void Interpreter::visit(const Expr::Call* expr) {
   }
 
   result = function->call(this, arguments);
+}
+
+void Interpreter::visit(const Expr::Get* expr) {
+  evaluate(expr->obj);
+  LiteralValue* obj = result;
+  
+  if (obj->type == LiteralValue::LITERAL_INSTANCE) {
+    result = obj->instanceValue->get(expr->name);
+    delete obj;
+  } else {
+    delete obj;
+    throw RuntimeError(expr->name, "Only instances have properties");
+  }
+
+}
+
+void Interpreter::visit(const Expr::Set* expr) {
+  evaluate(expr->obj);
+
+  LiteralValue* obj = result;
+  if (obj->type != LiteralValue::LITERAL_INSTANCE) {
+    throw RuntimeError(expr->name, "Only instances have fields");
+  }
+
+  evaluate(expr->value);
+  obj->instanceValue->set(expr->name, result);
+  delete obj;
 }
 
 void Interpreter::visit(const Expr::Array* expr) {

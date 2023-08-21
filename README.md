@@ -60,7 +60,7 @@
 - block          → "{" declaration* "}" ;
 - expression     → comma ;
 - comma          → assignment ( "," assignment )* ;
-- assignment     → IDENTIFIER "=" assignment | ternary ;
+- assignment     → (call ".") ? IDENTIFIER "=" assignment | ternary ;
 - ternary        → equality ("?" expression ":" ternary)?
 - logic_or       → logic_and ( "or" logic_and )* ;
 - logic_and      → equality ( "and" equality )* ;
@@ -69,7 +69,7 @@
 - term           → factor ( ( "-" | "+" ) factor )* ;
 - factor         → unary ( ( "/" | "*" ) unary )* ;
 - unary          → ( "!" | "-" ) unary | primary ;
-- call           → primary ( "(" arguments? ")" )* ;
+- call           → primary ( "(" arguments? ")" )* | "." IDENTIFIER )* ;
 - arguments      → assignment ( "," assignment )* ;
 - function (expr)→ "(" parameters? ")" block | array;
 - array          → '[' + element? + ']' | arrayElement;

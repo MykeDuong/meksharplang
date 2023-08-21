@@ -7,6 +7,9 @@
 #include <vector>
 
 class Callable;
+class MekClass;
+class MekFunction;
+class MekInstance;
 
 class LiteralValue {
   public:
@@ -15,7 +18,9 @@ class LiteralValue {
       LITERAL_NUMBER,
       LITERAL_NULL,
       LITERAL_BOOL,
-      LITERAL_CALLABLE,
+      LITERAL_FUNCTION,
+      LITERAL_CLASS,
+      LITERAL_INSTANCE,
       LITERAL_ARRAY
     };
 
@@ -24,7 +29,9 @@ class LiteralValue {
     LiteralValue(double value);
     LiteralValue(std::string value);
     LiteralValue(bool value);
-    LiteralValue(Callable* callable);
+    LiteralValue(MekFunction* value);
+    LiteralValue(MekClass* value);
+    LiteralValue(MekInstance* value);
     LiteralValue(std::vector<LiteralValue*> array);
     LiteralValue(const LiteralValue& value);
     LiteralValue(const LiteralValue* value);
@@ -38,7 +45,9 @@ class LiteralValue {
     std::string stringValue;
     bool boolValue;
     std::vector<LiteralValue*> arrayValue;
-    Callable* callableValue;
+    MekClass* classValue;
+    MekFunction* functionValue;
+    MekInstance* instanceValue;
 };
 
 std::ostream& operator<<(std::ostream& out, const LiteralValue::Type value);

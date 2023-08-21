@@ -35,6 +35,10 @@ void DefinitionChecker::visit(const Stmt::Expression* stmt) {
   result = DefinitionChecker::NodeDefinition::STMT_EXPR;
 }
 
+void DefinitionChecker::visit(const Stmt::ClassStmt* stmt) {
+  result = DefinitionChecker::STMT_CLASS;
+}
+
 void DefinitionChecker::visit(const Stmt::IfStmt* stmt) {
   result = DefinitionChecker::NodeDefinition::STMT_IF;
 }
@@ -97,6 +101,14 @@ void DefinitionChecker::visit(const Expr::Unary* expr) {
 
 void DefinitionChecker::visit(const Expr::Call* expr) {
   result = DefinitionChecker::NodeDefinition::EXPR_CALL;
+}
+
+void DefinitionChecker::visit(const Expr::Get* expr) {
+  result = DefinitionChecker::EXPR_GET;
+}
+
+void DefinitionChecker::visit(const Expr::Set* expr) {
+  result = DefinitionChecker::EXPR_SET;
 }
 
 void DefinitionChecker::visit(const Expr::Array* expr) {

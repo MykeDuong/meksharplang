@@ -12,6 +12,7 @@
 #include "include/Expression.h"
 #include "include/Function.h"
 #include "include/FunctionExpr.h"
+#include "include/Get.h"
 #include "include/Grouping.h"
 #include "include/IfStmt.h"
 #include "include/Literal.h"
@@ -19,6 +20,7 @@
 #include "include/Logical.h"
 #include "include/Print.h"
 #include "include/ReturnStmt.h"
+#include "include/Set.h"
 #include "include/Stmt.h"
 #include "include/Ternary.h"
 #include "include/TokenType.h"
@@ -41,7 +43,8 @@ std::vector<Stmt::Stmt*> Parser::parse() {
 
 Stmt::Stmt* Parser::declaration() {
   try {
-    if (match(std::vector<TokenType> { IF })) return classDeclaration();
+    if (match(std::vector<TokenType> { CLASS })) return classDeclaration(); 
+    if (match(std::vector<TokenType> { IF })) return ifStatement();
     if (match(std::vector<TokenType> { FUN })) {
       if (peek()->type == IDENTIFIER)
         return function("function");
@@ -229,6 +232,9 @@ Expr::Expr* Parser::assignment() {
     if (DefinitionChecker::getChecker()->check(expr) == DefinitionChecker::EXPR_VARIABLE) {
       const Token* name = dynamic_cast<Expr::Variable*>(expr)->name;
       return new Expr::Assign(name, value);
+    } else if (DefinitionChecker::getChecker()->check(expr) == DefinitionChecker::EXPR_GET) {
+      Expr::Get* get = dynamic_cast<Expr::Get*>(expr);
+      return new Expr::Set(get->obj, get->name, value);
     }
 
     error(equals, "Invalid assignment target.");
@@ -363,7 +369,10 @@ Expr::Expr* Parser::call() {
   while (true) {
     if (match(std::vector<TokenType> { LEFT_PAREN })) {
       expr = finishCall(expr);
-    } else {
+    } else if (match(std::vector<TokenType> { DOT })) {
+      Token* name = consume(IDENTIFIER, "Expect property name after 'if'.");
+      expr = new Expr::Get(expr, name);
+    }else {
       break;
     }
   }

@@ -13,6 +13,8 @@ def main():
         "Assign": [["Token*", "name",], ["Expr*", 'value']],
         "Binary": [["Expr*", "left"], ["Token*", "op"], ["Expr*", "right"]],
         "Call": [["Expr*", "callee"], ["Token*", "paren"], ["std::vector<Expr*>", "arguments"]],
+        "Get": [["Expr*", "obj"], ["Token*", "name"]],
+        "Set": [["Expr*", "obj"], ["Token*", "name"] ,["Expr*", "value"]],
         "Ternary": [
             ["Expr*", "firstExpr"], 
             ["Token*", "firstOp"], 
