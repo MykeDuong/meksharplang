@@ -1,5 +1,39 @@
 ### Mek# - A programming language with curly braces syntax inspired by Lua.
 
+## Installation
+- Clone the repo:
+```
+git clone https://github.com/MykeDuong/meksharplang.git ./meksharplang && cd ./meksharplang 
+```
+- Build:
+```
+make
+```
+- (Optional) Install:
+```
+make install 
+```
+- Run REPL:
+```
+./mks.out 
+```
+- Run a Mek# File:
+```
+./mks.out testfile.meks
+```
+
+## Example file:
+```
+# test.meks 
+class HelloWorld {
+  hello() {
+    print "Hello World!";
+  }  
+}
+var x = HelloWorld();
+x.hello();
+```
+
 ## Data types:
 - Booleans: true/false.
 - Numbers: double-precision floating points.

@@ -1,6 +1,7 @@
-class Eclair {
-  cook() {
-    super.cook();
-    print "Pipe full of crème pâtissière.";
-  }
+class HelloWorld {
+  hello() {
+    print "Hello World!";
+  }  
 }
+var x = HelloWorld();
+x.hello();
