@@ -32,15 +32,25 @@ void Resolver::visit(const Stmt::IfStmt* ifstmt) {
 }
 
 void Resolver::visit(const Stmt::ClassStmt* stmt) {
+  ClassType enclosingClass = currentClass;
+  currentClass = Resolver::CLASS;
   declare(stmt->name);
   define(stmt->name);
+  
+  beginScope();
+  scopes.back()["this"] = true;
 
   for (Stmt::Function* method: stmt->methods) {
     FunctionType declaration = FunctionType::METHOD;
+    if (method->name->lexeme == "init") {
+      declaration = Resolver::INITIALIZER;
+    }
     declare(method->name);
     define(method->name);
     resolveFunction(method->function, declaration);
   }
+  currentClass = enclosingClass;
+  endScope();
 }
 
 void Resolver::visit(const Stmt::Print* print) {
@@ -68,8 +78,13 @@ void Resolver::visit(const Stmt::BreakStmt* breakstmt) {
 }
 
 void Resolver::visit(const Stmt::ReturnStmt* returnstmt) {
-  if (currentFunction == NONE) ErrorHandler::error(returnstmt->keyword, "Cannot return from top-level code.");
-  if (returnstmt->value != nullptr) resolve(returnstmt->value);
+  if (currentFunction == NONE_FUNCTION) ErrorHandler::error(returnstmt->keyword, "Cannot return from top-level code.");
+  if (returnstmt->value != nullptr) {
+    if (currentFunction == Resolver::INITIALIZER) {
+      ErrorHandler::error(returnstmt->keyword, "Cannot return a value from an initializer method.");
+    }
+    resolve(returnstmt->value);
+  }
 }
 
 
@@ -119,6 +134,13 @@ void Resolver::visit(const Expr::Set* set) {
 
 void Resolver::visit(const Expr::Get* get) {
   resolve(get->obj);
+}
+
+void Resolver::visit(const Expr::ThisExpr* expr) {
+  if (currentClass == Resolver::NONE_CLASS) {
+    ErrorHandler::error(expr->keyword, "Cannot use 'this' outside of a class.");
+  }
+  resolveLocal(expr, expr->keyword);
 }
 
 void Resolver::visit(const Expr::Unary* unary) {

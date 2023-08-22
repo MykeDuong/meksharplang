@@ -6,6 +6,7 @@
 #include "ClassStmt.h"
 #include "Get.h"
 #include "Set.h"
+#include "ThisExpr.h"
 #include "Visitor.h"
 #include "Interpreter.h"
 #include <unordered_map>
@@ -13,11 +14,13 @@
 
 class Resolver final: public Expr::Visitor, Stmt::Visitor {
   private:
-    enum FunctionType { NONE, FUNCTION, METHOD };
+    enum FunctionType { NONE_FUNCTION, FUNCTION, METHOD, INITIALIZER };
+    enum ClassType { NONE_CLASS, CLASS };
   private:
     Interpreter* interpreter;
     std::vector<std::unordered_map<std::string, bool>> scopes;
-    FunctionType currentFunction = FunctionType::NONE;
+    FunctionType currentFunction = NONE_FUNCTION;
+    ClassType currentClass = NONE_CLASS;
     bool currentLoop = false;
 
   public:
@@ -42,6 +45,7 @@ class Resolver final: public Expr::Visitor, Stmt::Visitor {
     void visit(const Expr::Logical* logical) override;
     void visit(const Expr::Set* set) override;
     void visit(const Expr::Get* get) override;
+    void visit(const Expr::ThisExpr* expr) override;
     void visit(const Expr::Unary* unary) override;
     void visit(const Expr::Array* array) override;
     void visit(const Expr::ArrayElement* arrayElement) override;

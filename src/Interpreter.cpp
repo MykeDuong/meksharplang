@@ -79,7 +79,11 @@ void Interpreter::visit(const Stmt::ClassStmt* stmt) {
   std::unordered_map<std::string, MekFunction*> methods;
 
   for (Stmt::Function* method: stmt->methods) {
-    MekFunction* function = new MekFunction(method->function, std::shared_ptr<Environment>(environment));
+    MekFunction* function = new MekFunction(
+        method->function, 
+        std::shared_ptr<Environment>(environment),
+        method->name->lexeme == "init"
+    );
     if (methods.find(method->name->lexeme) != methods.end()) {
       throw RuntimeError(method->name, "Overloading not supported.");
     }
@@ -277,7 +281,7 @@ void Interpreter::visit(const Expr::Binary* expr) {
       break;
     default:
       // unreachable
-      std::cout << "Unreachable code reach on Binary Interpreter with operation " << expr->op->type << std::endl;
+      throw RuntimeError(expr->op, "Unreachable code reach on Binary Interpreter with operation.");
 
   }
 
@@ -339,7 +343,7 @@ void Interpreter::visit(const Expr::Unary* expr) {
       break;
     default:
       // unreachable
-      std::cout << "Unreachable code reached" << std::endl;
+      throw RuntimeError(expr->op, "Unreachable code reached.");
       break;
   }
 
@@ -405,6 +409,10 @@ void Interpreter::visit(const Expr::Set* expr) {
   evaluate(expr->value);
   obj->instanceValue->set(expr->name, result);
   delete obj;
+}
+
+void Interpreter::visit(const Expr::ThisExpr* expr) {
+  result = lookUpVariable(expr->keyword, expr);
 }
 
 void Interpreter::visit(const Expr::Array* expr) {
@@ -568,7 +576,7 @@ void Interpreter::resolve(const Expr::Expr* expr, int depth) {
 }
 
 
-LiteralValue* Interpreter::lookUpVariable(const Token* const name, const Expr::Variable* expr) {
+LiteralValue* Interpreter::lookUpVariable(const Token* const name, const Expr::Expr* expr) {
   if (locals.find(expr) == locals.end()) {
     return globals->get(name);
   } else {

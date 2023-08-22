@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 class Environment {
-  private:
+  public:
     Environment* const enclosing;
     std::unordered_map<std::string, LiteralValue*> values;
 

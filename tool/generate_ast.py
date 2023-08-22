@@ -15,6 +15,7 @@ def main():
         "Call": [["Expr*", "callee"], ["Token*", "paren"], ["std::vector<Expr*>", "arguments"]],
         "Get": [["Expr*", "obj"], ["Token*", "name"]],
         "Set": [["Expr*", "obj"], ["Token*", "name"] ,["Expr*", "value"]],
+        "ThisExpr": [["Token*", "keyword"]],
         "Ternary": [
             ["Expr*", "firstExpr"], 
             ["Token*", "firstOp"], 

@@ -11,6 +11,7 @@
 #include "FunctionExpr.h"
 #include "Logical.h"
 #include "ReturnStmt.h"
+#include "ThisExpr.h"
 #include "Visitor.h"
 
 #include "Stmt.h"
@@ -38,6 +39,7 @@ class DefinitionChecker final: public Expr::Visitor, Stmt::Visitor {
       EXPR_CALL,
       EXPR_GET,
       EXPR_SET,
+      EXPR_THIS,
       EXPR_FUN,
       EXPR_ARR,
       EXPR_ARR_ELEMENT,
@@ -71,6 +73,7 @@ class DefinitionChecker final: public Expr::Visitor, Stmt::Visitor {
     void visit(const Expr::Call* expr);
     void visit(const Expr::Get* expr);
     void visit(const Expr::Set* expr);
+    void visit(const Expr::ThisExpr* expr);
     void visit(const Expr::FunctionExpr* expr);
     void visit(const Expr::Array* expr);
     void visit(const Expr::ArrayElement* expr);

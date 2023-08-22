@@ -23,6 +23,7 @@
 #include "include/Set.h"
 #include "include/Stmt.h"
 #include "include/Ternary.h"
+#include "include/ThisExpr.h"
 #include "include/TokenType.h"
 #include "include/Unary.h"
 #include "include/Var.h"
@@ -422,6 +423,8 @@ Expr::Expr* Parser::primary() {
   if (match(std::vector<TokenType> {NAH})) return new Expr::Literal(new LiteralValue());
 
   if (match(std::vector<TokenType> { NUMBER, STRING })) return new Expr::Literal(previous()->literal);
+  if (match(std::vector<TokenType> { THIS })) return new Expr::ThisExpr(previous());
+
 
   if (match(std::vector<TokenType> { IDENTIFIER } )) return new Expr::Variable(previous());
 

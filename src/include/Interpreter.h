@@ -21,6 +21,7 @@
 #include "Print.h"
 #include "ReturnStmt.h"
 #include "Stmt.h"
+#include "ThisExpr.h"
 #include "Var.h"
 #include "Variable.h"
 #include "Visitor.h"
@@ -73,6 +74,7 @@ class Interpreter final: public Expr::Visitor, Stmt::Visitor {
     void visit(const Expr::Call* expr);
     void visit(const Expr::Get* expr);
     void visit(const Expr::Set* expr);
+    void visit(const Expr::ThisExpr* expr);
     void visit(const Expr::Array* expr);
     void visit(const Expr::ArrayElement* expr);
     void visit(const Expr::Variable* expr);
@@ -87,7 +89,7 @@ class Interpreter final: public Expr::Visitor, Stmt::Visitor {
     void checkNumberOperand(const Token* op, const LiteralValue* operand, std::vector<LiteralValue*> deleted = {});
     void checkNumberOperand(const Token* op, const LiteralValue* leftVal, const LiteralValue* rightVal, std::vector<LiteralValue*> deleted = {});
     void checkNumberOrStringOperand(const Token* op, const LiteralValue* leftVal, const LiteralValue* rightVal, std::vector<LiteralValue*> deleted = {});
-    LiteralValue* lookUpVariable(const Token* const name, const Expr::Variable* expr);
+    LiteralValue* lookUpVariable(const Token* const name, const Expr::Expr* expr);
 };
 
 #endif 

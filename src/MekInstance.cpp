@@ -1,6 +1,7 @@
 #include "include/MekInstance.h"
 #include "include/LiteralValue.h"
 #include "include/MekClass.h"
+#include "include/MekFunction.h"
 #include "include/RuntimeError.h"
 #include <string>
 
@@ -12,7 +13,7 @@ LiteralValue* MekInstance::get(const Token* const name) {
   }
 
   MekFunction* method = klass->findMethod(name->lexeme);
-  if (method != nullptr) return new LiteralValue(method);
+  if (method != nullptr) return new LiteralValue(method->bind(this));
 
   throw RuntimeError(name, "Undefined property '" + name->lexeme + "'.");
 }
