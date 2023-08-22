@@ -111,6 +111,10 @@ void DefinitionChecker::visit(const Expr::Set* expr) {
   result = DefinitionChecker::EXPR_SET;
 }
 
+void DefinitionChecker::visit(const Expr::Super* expr) {
+  result = DefinitionChecker::EXPR_SUPER;
+}
+
 void DefinitionChecker::visit(const Expr::ThisExpr* expr) {
   result = DefinitionChecker::EXPR_THIS;
 }

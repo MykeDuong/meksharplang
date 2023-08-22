@@ -22,6 +22,7 @@
 #include "include/ReturnStmt.h"
 #include "include/Set.h"
 #include "include/Stmt.h"
+#include "include/Super.h"
 #include "include/Ternary.h"
 #include "include/ThisExpr.h"
 #include "include/TokenType.h"
@@ -75,6 +76,13 @@ Stmt::Stmt* Parser::varDeclaration() {
 
 Stmt::Stmt* Parser::classDeclaration() {
   Token* name = consume(IDENTIFIER, "Expect class name.");
+  
+  Expr::Variable* superclass = nullptr;
+  if (match(std::vector<TokenType> { LESS })) {
+    consume(IDENTIFIER, "Expect superclass name.");
+    superclass = new Expr::Variable(previous());
+  }
+
   consume(LEFT_BRACE, "Expect '{' before class body.");
 
   std::vector<Stmt::Function*> methods;
@@ -84,7 +92,7 @@ Stmt::Stmt* Parser::classDeclaration() {
 
   consume(RIGHT_BRACE, "Expect '}' after class body.");
 
-  return new Stmt::ClassStmt(name, methods);
+  return new Stmt::ClassStmt(name, methods, superclass);
 }
 
 Stmt::Stmt* Parser::statement() {
@@ -423,6 +431,13 @@ Expr::Expr* Parser::primary() {
   if (match(std::vector<TokenType> {NAH})) return new Expr::Literal(new LiteralValue());
 
   if (match(std::vector<TokenType> { NUMBER, STRING })) return new Expr::Literal(previous()->literal);
+
+  if (match(std::vector<TokenType> { SUPER })) {
+    Token* keyword = previous();
+    consume(DOT, "Expected '.' after 'super'.");
+    Token* method = consume(IDENTIFIER, "Expected superclass method name.");
+    return new Expr::Super(keyword, method);
+  }
   if (match(std::vector<TokenType> { THIS })) return new Expr::ThisExpr(previous());
 
 

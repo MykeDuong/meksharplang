@@ -15,6 +15,7 @@ def main():
         "Call": [["Expr*", "callee"], ["Token*", "paren"], ["std::vector<Expr*>", "arguments"]],
         "Get": [["Expr*", "obj"], ["Token*", "name"]],
         "Set": [["Expr*", "obj"], ["Token*", "name"] ,["Expr*", "value"]],
+        "Super": [["Token*", "keyword"], ["Token*", "method"]],
         "ThisExpr": [["Token*", "keyword"]],
         "Ternary": [
             ["Expr*", "firstExpr"], 
@@ -35,7 +36,7 @@ def main():
     
     stmt_types = {
         "Block": [["std::vector<Stmt*>", "statements"]],
-        "ClassStmt": [["Token*", "name"], ["std::vector<Function*>", "methods"]],
+        "ClassStmt": [["Token*", "name"], ["std::vector<Function*>", "methods"], ["Expr::Variable*", "superclass", "nullptr"]],
         "Expression": [["Expr::Expr*", "expression"]],
         "Function": [["Token*", "name"], ["Expr::FunctionExpr*", "function"]],
         "IfStmt": [["Expr::Expr*", "condition"], ["Stmt*", "thenBranch"], ["Stmt*", "elseBranch"]],
@@ -106,6 +107,8 @@ def write_header(output_dir, base, class_name, fields, dep):
         f.write('#include "./FunctionExpr.h"\n')
     if base == "Stmt" and class_name == "ClassStmt":
         f.write('#include "./Function.h"\n')
+        f.write('#include "./Variable.h"\n')
+        
 
     for d in dep:
         f.write('#include "./' + d + '.h"\n')
@@ -125,6 +128,8 @@ def write_header(output_dir, base, class_name, fields, dep):
     f.write("      " + class_name + "(")
     for i, field in enumerate(fields):
         f.write("const " + field[0] + " " + field[1])
+        if (len(field) == 3):
+            f.write(" = " + field[2])
         if i != len(fields) - 1:
             f.write(', ')
     f.write(");\n")

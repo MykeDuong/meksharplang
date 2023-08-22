@@ -7,6 +7,7 @@
 #include "./Call.h"
 #include "./Get.h"
 #include "./Set.h"
+#include "./Super.h"
 #include "./ThisExpr.h"
 #include "./Ternary.h"
 #include "./Grouping.h"
@@ -35,6 +36,7 @@ namespace Expr {
       virtual void visit(const Call* call) = 0;
       virtual void visit(const Get* get) = 0;
       virtual void visit(const Set* set) = 0;
+      virtual void visit(const Super* super) = 0;
       virtual void visit(const ThisExpr* thisexpr) = 0;
       virtual void visit(const Ternary* ternary) = 0;
       virtual void visit(const Grouping* grouping) = 0;

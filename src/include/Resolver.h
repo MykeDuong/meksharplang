@@ -15,7 +15,7 @@
 class Resolver final: public Expr::Visitor, Stmt::Visitor {
   private:
     enum FunctionType { NONE_FUNCTION, FUNCTION, METHOD, INITIALIZER };
-    enum ClassType { NONE_CLASS, CLASS };
+    enum ClassType { NONE_CLASS, CLASS, SUBCLASS };
   private:
     Interpreter* interpreter;
     std::vector<std::unordered_map<std::string, bool>> scopes;
@@ -45,6 +45,7 @@ class Resolver final: public Expr::Visitor, Stmt::Visitor {
     void visit(const Expr::Logical* logical) override;
     void visit(const Expr::Set* set) override;
     void visit(const Expr::Get* get) override;
+    void visit(const Expr::Super* expr) override;
     void visit(const Expr::ThisExpr* expr) override;
     void visit(const Expr::Unary* unary) override;
     void visit(const Expr::Array* array) override;

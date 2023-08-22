@@ -46,7 +46,7 @@
 ## Precedence (bottom to top):
 - program        → declaration* EOF ;
 - declaration    → funDecl | varDecl | statement ;
-- classDecl      → "class" IDENTIFIER "{" function* "}" ;
+- classDecl      → "class" IDENTIFIER ( "<" IDENTIFIER )? "{" function* "}" ;
 - funDecl        → "fun" function ;
 - function       → IDENTIFIER "(" parameters? ")" block ;
 - parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
@@ -75,4 +75,4 @@
 - array          → '[' + element? + ']' | arrayElement;
 - element        → assignment (',' + assignment)*;
 - array element  → IDENTIFIER '[' expression + ']' | primary;
-- primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER | ;
+- primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER | "super" "." IDENTIFIER ;

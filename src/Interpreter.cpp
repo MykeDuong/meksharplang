@@ -75,7 +75,22 @@ void Interpreter::visit(const Stmt::Function* stmt) {
 }
 
 void Interpreter::visit(const Stmt::ClassStmt* stmt) {
+  LiteralValue* superclass = nullptr;
+  if (stmt->superclass != nullptr) {
+    evaluate(stmt->superclass);
+    superclass = result;
+    if (!(superclass->type == LiteralValue::LITERAL_CLASS)) {
+      throw RuntimeError(stmt->superclass->name, "Superclass must be a class.");
+    }
+  }
+
   environment->define(stmt->name->lexeme, nullptr);
+  
+  if (stmt->superclass != nullptr) {
+    environment = new Environment(environment);
+    environment->define("super", superclass);
+  }
+
   std::unordered_map<std::string, MekFunction*> methods;
 
   for (Stmt::Function* method: stmt->methods) {
@@ -90,7 +105,10 @@ void Interpreter::visit(const Stmt::ClassStmt* stmt) {
     methods[method->name->lexeme] = function;
   }
 
-  MekClass* klass = new MekClass(stmt->name->lexeme, methods);
+  MekClass* klass = new MekClass(stmt->name->lexeme, methods, superclass ? superclass->classValue : nullptr);
+  if (superclass != nullptr) {
+    environment = environment->enclosing;
+  }
   LiteralValue* classValue = new LiteralValue(klass);
   environment->assign(stmt->name, classValue);
   delete classValue;
@@ -409,6 +427,20 @@ void Interpreter::visit(const Expr::Set* expr) {
   evaluate(expr->value);
   obj->instanceValue->set(expr->name, result);
   delete obj;
+}
+
+void Interpreter::visit(const Expr::Super* expr) {
+  int distance = locals[expr];
+  MekClass* superclass = environment->getAt(distance, "super")->classValue;
+
+  MekInstance*  object = environment->getAt(distance - 1, "this")->instanceValue;
+  MekFunction* method = superclass->findMethod(expr->method->lexeme);
+  
+  if (method == nullptr) {
+    throw RuntimeError(expr->method, "Undefined property '" + expr->method->lexeme + "'.");
+  }
+
+  result = new LiteralValue(method->bind(object));
 }
 
 void Interpreter::visit(const Expr::ThisExpr* expr) {

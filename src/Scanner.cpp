@@ -99,7 +99,7 @@ void Scanner::scanToken() {
       } else if (util::isAlpha(c)) {
         identifier();
       }else {
-        ErrorHandler::error(line, "Unexpected character.");
+        ErrorHandler::error(line, "Unexpected character " + std::string(1, c) + ".");
       }
       break;
   }

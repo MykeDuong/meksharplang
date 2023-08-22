@@ -36,7 +36,21 @@ void Resolver::visit(const Stmt::ClassStmt* stmt) {
   currentClass = Resolver::CLASS;
   declare(stmt->name);
   define(stmt->name);
+ 
+  if (stmt->superclass != nullptr && stmt->name->lexeme == stmt->superclass->name->lexeme) {
+    ErrorHandler::error(stmt->superclass->name, "A class cannot inherit from itself.");
+  }
+
+  if (stmt->superclass != nullptr) {
+    currentClass = Resolver::SUBCLASS;
+    resolve(stmt->superclass);
+  }
   
+  if (stmt->superclass != nullptr) {
+    beginScope();
+    scopes.back()["super"] = true;
+  }
+
   beginScope();
   scopes.back()["this"] = true;
 
@@ -49,8 +63,9 @@ void Resolver::visit(const Stmt::ClassStmt* stmt) {
     define(method->name);
     resolveFunction(method->function, declaration);
   }
-  currentClass = enclosingClass;
   endScope();
+  if (stmt->superclass != nullptr) endScope();
+  currentClass = enclosingClass;
 }
 
 void Resolver::visit(const Stmt::Print* print) {
@@ -134,6 +149,16 @@ void Resolver::visit(const Expr::Set* set) {
 
 void Resolver::visit(const Expr::Get* get) {
   resolve(get->obj);
+}
+
+void Resolver::visit(const Expr::Super* expr) {
+  if (currentClass == Resolver::NONE_CLASS) {
+    ErrorHandler::error(expr->keyword, "Cannot use 'super' outside of a class.");
+  } else if (currentClass != Resolver::SUBCLASS) {
+    ErrorHandler::error(expr->keyword, "Cannot use 'super' inside a class with no superclass.");
+  }
+
+  resolveLocal(expr, expr->keyword);
 }
 
 void Resolver::visit(const Expr::ThisExpr* expr) {

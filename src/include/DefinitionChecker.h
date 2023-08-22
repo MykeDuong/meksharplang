@@ -39,6 +39,7 @@ class DefinitionChecker final: public Expr::Visitor, Stmt::Visitor {
       EXPR_CALL,
       EXPR_GET,
       EXPR_SET,
+      EXPR_SUPER,
       EXPR_THIS,
       EXPR_FUN,
       EXPR_ARR,
@@ -73,6 +74,7 @@ class DefinitionChecker final: public Expr::Visitor, Stmt::Visitor {
     void visit(const Expr::Call* expr);
     void visit(const Expr::Get* expr);
     void visit(const Expr::Set* expr);
+    void visit(const Expr::Super* expr);
     void visit(const Expr::ThisExpr* expr);
     void visit(const Expr::FunctionExpr* expr);
     void visit(const Expr::Array* expr);

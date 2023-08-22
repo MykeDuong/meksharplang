@@ -77,9 +77,9 @@ void run(std::string const& source, bool isRepl) {
   Parser* parser = new Parser(tokens);
   std::vector<Stmt::Stmt*> stmt = parser->parse();
   delete parser;
+
   if (ErrorHandler::hadError()) return;
 
-  //std::cout << ((new AstPrinter())->print(expr)) << std::endl;
   Resolver* resolver = new Resolver(interpreter);
   resolver->resolve(stmt);
   delete resolver;
